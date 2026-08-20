@@ -305,17 +305,6 @@
                 <div class="chart-box"><h4>✅ نجاح / ❌ فشل العمليات</h4><canvas id="chartSuccessFail"></canvas></div>
                 <div class="chart-box"><h4>📋 تنفيذ المهام اليومية</h4><canvas id="chartTasks"></canvas></div>
             </div>
-
-            <!-- Terminal -->
-            <div style="background:var(--panel-strong);border-radius:var(--radius);padding:16px 20px;border:1px solid var(--border);">
-                <div class="flex-between">
-                    <h4 style="font-weight:900;">💻 SYSTEM OPERATIONS TERMINAL</h4>
-                    <span id="liveCurrent" style="color:var(--yellow);font-size:0.8rem;">🟡 جاري المراقبة...</span>
-                </div>
-                <div class="terminal custom-scroll" id="terminalLogs">
-                    <div class="line">[--:--:--] SYSTEM جاري المراقبة...</div>
-                </div>
-            </div>
         </section>
 
         <!-- TAB: USERS -->
@@ -341,7 +330,7 @@
             </div>
         </section>
 
-        <!-- TAB: MESSAGES (تحديث الشكل ليكون مستطيلات مستقلة) -->
+        <!-- TAB: MESSAGES -->
         <section class="tab-content" id="tab-messages">
             <div class="flex-between mb-2">
                 <h2 style="font-size:1.5rem;font-weight:900;">✏️ محرر الرسائل</h2>
@@ -434,7 +423,7 @@
     </div>
 </div>
 
-<!-- ===== TOAST (تم تفعيله بقوة هنا) ===== -->
+<!-- ===== TOAST ===== -->
 <div class="toast" id="toast"></div>
 
 <script>
@@ -447,9 +436,6 @@
         return false;
     };
 
-    // =========================================================
-    // CONFIG, STATE & AUTH
-    // =========================================================
     const API_KEY = 'VANGUARD-2026-OMAR';
     const baseURL = '';
     let currentBotId = ''; 
@@ -458,8 +444,10 @@
     lucide.createIcons();
 
     // =========================================================
-    // FIREBASE INITIALIZATION & CONFIG
+    // 🕵️ CYBERVANGUARD DIAGNOSTIC MATRIX (FIREBASE)
     // =========================================================
+    console.log("🛠️ [Vanguard-Diag] 1. بدء تشغيل نظام التشخيص...");
+
     const firebaseConfig = {
         apiKey: "AIzaSyC4n627jxgPjoQn7icO9OP9C3ImcAbLEME",
         authDomain: "private-d338e.firebaseapp.com",
@@ -471,8 +459,15 @@
         measurementId: "G-Z8RT3VY8SL"
     };
 
-    firebase.initializeApp(firebaseConfig);
-    const fb = firebase.database();
+    let fb;
+
+    try {
+        firebase.initializeApp(firebaseConfig);
+        fb = firebase.database();
+        console.log("✅ [Vanguard-Diag] 2. تم تهيئة Firebase بنجاح والاتصال بـ Realtime Database.");
+    } catch (initError) {
+        console.error("❌ [Vanguard-Diag] فشل كارثي في تهيئة Firebase:", initError);
+    }
 
     function sendFirebaseCommand(botId, action, payload = {}) {
         const cmdRef = fb.ref(`bots/${botId}/commands`).push();
@@ -490,7 +485,6 @@
             const data = snapshot.val();
             if (!data) return;
 
-            // تحديث إحصائيات لوحة التحكم في الوقت الفعلي
             if(document.getElementById('sBotStatus')) document.getElementById('sBotStatus').textContent = data.status || 'غير متصل';
             if(document.getElementById('sActive')) document.getElementById('sActive').textContent = data.activeSubscribers ?? 0;
             if(document.getElementById('sSent')) document.getElementById('sSent').textContent = data.totalMessagesSent ?? 0;
@@ -503,7 +497,6 @@
         });
     }
 
-    // دالة التوست المحدثة والقوية
     function toast(msg, isError = false) {
         const el = document.getElementById('toast');
         el.textContent = msg; 
@@ -511,7 +504,6 @@
         el.style.color = isError ? '#ffaaaa' : '#fff';
         
         el.classList.remove('show');
-        // تفريغ الكلاس وإضافته مجدداً لتفعيل الـ Animation
         void el.offsetWidth; 
         el.classList.add('show'); 
         
@@ -546,7 +538,6 @@
     // AUTHENTICATION LOGIC
     // =========================================================
     function initiateSessionChange(newBotId) {
-        // This is called from dropdown or from session card click
         currentBotId = newBotId;
         const selector = document.getElementById('sessionSwitcher');
         const selectedOption = selector.querySelector(`option[value="${newBotId}"]`);
@@ -558,11 +549,8 @@
             document.getElementById('authSessionName').textContent = `جلسة: ${selectedOption.text.replace('📱 ', '').split(' ')[0]}`;
             showAuthModal();
         } else {
-            // Not secured, load directly
             loadCurrentTabData(document.querySelector('.nav-item.active').getAttribute('data-tab'));
         }
-
-        // تفعيل استماع Firebase المباشر عند تغيير الجلسة
         initFirebaseSync(currentBotId);
     }
 
@@ -577,12 +565,10 @@
         
         toast('⏳ جاري التحقق من الهوية...');
         try {
-            // جلب كلمة المرور المخزنة في الجلسة عبر Firebase
             const snap = await fb.ref(`global_sessions`).once('value');
             const sessions = snap.val() || [];
             const session = sessions.find(s => s.id === currentBotId);
 
-            // إذا كانت كلمة المرور مطابقة (أو القيمة الافتراضية 123)
             if (session && (session.password === pass || pass === '123')) {
                 currentSessionPassword = pass;
                 document.getElementById('authOverlay').classList.remove('active');
@@ -598,20 +584,42 @@
     }
 
     // =========================================================
-    // SESSIONS INIT
+    // SESSIONS INIT - (نظام الفحص العميق)
     // =========================================================
     async function loadSessions() {
-        toast('⏳ جاري جلب الجلسات من السحابة...');
-        try {
-            const snapshot = await fb.ref('global_sessions').once('value');
-            const sessions = snapshot.val();
-            
-            if (!sessions) throw new Error("لا توجد بيانات جلسات في السحابة");
+        console.log("📡 [Vanguard-Diag] 3. محاولة جلب البيانات من مسار 'global_sessions'...");
+        toast('⏳ جاري فحص الاتصال بالسحابة عبر الـ Console...');
 
-            // Populate dropdown
+        try {
+            console.log("⏳ [Vanguard-Diag] 4. يتم الآن إرسال الطلب (Request) وننتظر استجابة السيرفر...");
+            
+            const snapshot = await fb.ref('global_sessions').once('value');
+
+            console.log("📥 [Vanguard-Diag] 5. تم استلام الرد (Response) من Firebase بنجاح!");
+            
+            const sessions = snapshot.val();
+            console.log("📦 [Vanguard-Diag] 6. محتوى البيانات المستلمة هو:", sessions);
+
+            if (!sessions || sessions.length === 0) {
+                console.warn("⚠️ [Vanguard-Diag] 7. تنبيه: قاعدة البيانات متصلة بشكل سليم ولكنها فارغة تماماً.");
+                document.getElementById('sessionCardsGrid').innerHTML = 
+                    `<div style="grid-column: 1 / -1; text-align: center; background: rgba(0,0,0,0.4); padding: 30px; border-radius: 20px; border: 1px dashed var(--yellow);">
+                        <i data-lucide="server-off" style="color: var(--yellow); width: 48px; height: 48px; margin-bottom: 15px;"></i>
+                        <h3 style="color: var(--yellow); font-weight: 900;">الأنظمة في وضع الاستعداد</h3>
+                        <p style="color: var(--muted); margin-top: 10px;">لا توجد جلسات مرفوعة حالياً. شغل الخادم الخلفي (Backend) لرفعها.</p>
+                    </div>`;
+                lucide.createIcons();
+                document.getElementById('sessionSelectOverlay').classList.remove('hidden');
+                document.getElementById('mainApp').style.display = 'none';
+                toast('⚠️ بانتظار الخادم الخلفي لرفع الجلسات.', false);
+                return;
+            }
+
+            console.log("✅ [Vanguard-Diag] 7. تم العثور على جلسات صالحة، جاري بناء الواجهة...");
             const switcher = document.getElementById('sessionSwitcher');
             switcher.innerHTML = '';
-            sessions.forEach((session, index) => {
+            sessions.forEach((session) => {
+                if(!session) return;
                 const opt = document.createElement('option');
                 opt.value = session.id;
                 opt.textContent = `📱 ${session.name || session.id}`;
@@ -619,22 +627,31 @@
                 switcher.appendChild(opt);
             });
 
-            // Render session cards
             renderSessionCards(sessions);
-
-            // Show overlay, hide main app
             document.getElementById('sessionSelectOverlay').classList.remove('hidden');
             document.getElementById('mainApp').style.display = 'none';
+            toast('✅ تم الاتصال بنجاح.');
 
         } catch (e) { 
-            toast('❌ فشل الاتصال بقاعدة بيانات Firebase', true); 
-            console.error(e);
+            console.error("🚨 [Vanguard-Diag] ❌ انهيار في الاتصال (EXCEPTION)! تفاصيل الخطأ الدقيقة:");
+            console.error("1️⃣ رسالة الخطأ (Message):", e.message);
+            console.error("2️⃣ كود الخطأ (Code):", e.code);
+
+            if (e.message.includes("permission_denied") || (e.code && e.code.includes("PERMISSION_DENIED"))) {
+                console.error("🔐 [Vanguard-Diag] التحليل: Firebase يرفض إعطائك البيانات لأنك لا تملك صلاحية القراءة! اذهب إلى إعدادات Realtime Database -> Rules واجعل .read تساوي true.");
+            } else if (e.message.includes("offline") || e.message.includes("network")) {
+                console.error("🌐 [Vanguard-Diag] التحليل: فشل في الاتصال بالشبكة. قد يكون السبب إضافة AdBlocker تحجب الاتصال، أو المتصفح يمنع طلبات CORS.");
+            }
+
+            toast(`❌ خطأ تشخيصي: ${e.code || e.message}`, true); 
         }
     }
 
     function renderSessionCards(sessions) {
         const grid = document.getElementById('sessionCardsGrid');
-        grid.innerHTML = sessions.map(session => `
+        grid.innerHTML = sessions.map(session => {
+            if(!session) return '';
+            return `
             <div class="session-card" onclick="selectSession('${session.id}')">
                 <div class="gradient-bar"></div>
                 <div class="card-content">
@@ -646,33 +663,25 @@
                     </div>
                 </div>
             </div>
-        `).join('');
-        // re-render icons
+        `}).join('');
         lucide.createIcons();
     }
 
     function selectSession(sessionId) {
-        // Hide overlay, show main app
         document.getElementById('sessionSelectOverlay').classList.add('hidden');
         document.getElementById('mainApp').style.display = 'flex';
-        
-        // Set current bot id and trigger change
         const switcher = document.getElementById('sessionSwitcher');
         switcher.value = sessionId;
         initiateSessionChange(sessionId);
     }
 
     function logoutToSessionSelect() {
-        // Hide main app, show session select
         document.getElementById('mainApp').style.display = 'none';
         document.getElementById('sessionSelectOverlay').classList.remove('hidden');
-        // Reset auth state
         currentBotId = '';
         currentSessionPassword = '';
         document.getElementById('authOverlay').classList.remove('active');
-        // Close sidebar if open
         closeSidebar();
-        // Reload sessions to refresh list (optional)
         loadSessions();
     }
 
@@ -800,7 +809,7 @@
     }
 
     // =========================================================
-    // TIME PICKER & SAVE (النسخة العبقرية لإغلاق النافذة فوراً)
+    // TIME PICKER & SAVE
     // =========================================================
     let timePickerCallback = null; let timePickerTaskId = null;
     
@@ -840,11 +849,9 @@
                 const inputId = mapSettings[timePickerTaskId];
                 if(inputId) document.getElementById(inputId).value = newTime;
                 
-                // هنا الإغلاق الفوري للنافذة لتجنب التعليق
                 closeTimePicker();
                 toast('⏳ جاري تحديث الوقت في الخادم...');
-                
-                await saveSettings(true); // true = صامت بدون توست إضافي لو نجح
+                await saveSettings(true); 
             };
         } catch (e) {
             toast(`❌ خطأ: ${e.message}`, true);
@@ -938,16 +945,7 @@
         } catch (e) {}
     }
     
-    async function saveMessages() {
-        toast('⏳ جاري إرسال التحديثات للسيرفر...');
-        const payload = { welcome: document.getElementById('msgWelcome').value, morningAdhkar: document.getElementById('msgMorningAdhkar').value, eveningAdhkar: document.getElementById('msgEveningAdhkar').value, morningWird: document.getElementById('msgMorningWird').value, eveningWird: document.getElementById('msgEveningWird').value, dailyReminder: document.getElementById('msgDailyReminder').value };
-        try { 
-            await apiFetch('/api/messages', { method: 'PUT', body: JSON.stringify(payload) });
-            await sendFirebaseCommand(currentBotId, 'saveMessages', payload);
-            toast('✅ تم حفظ كافة الرسائل بنجاح'); 
-        } catch (e) { toast('❌ فشل حفظ الرسائل', true); }
-    }
-    
+     
     async function fetchSettings() {
         try { 
             const snap = await fb.ref(`bots/${currentBotId}/state/settings`).once('value');
@@ -956,34 +954,89 @@
         } catch (e) {}
     }
     
+    
+    
+    
+        // =========================================================
+    // MESSAGES & SETTINGS (تم الإصلاح بواسطة CyberVanguard)
+    // =========================================================
+    
+    async function saveMessages() {
+        toast('⏳ جاري إرسال التحديثات للسيرفر...');
+        // 1. جمع البيانات من الواجهة
+        const payload = { 
+            welcome: document.getElementById('msgWelcome').value, 
+            morningAdhkar: document.getElementById('msgMorningAdhkar').value, 
+            eveningAdhkar: document.getElementById('msgEveningAdhkar').value, 
+            morningWird: document.getElementById('msgMorningWird').value, 
+            eveningWird: document.getElementById('msgEveningWird').value, 
+            dailyReminder: document.getElementById('msgDailyReminder').value 
+        };
+        
+        try { 
+            // 2. إرسال التعديلات عبر Firebase أولاً (لضمان وصولها)
+            await sendFirebaseCommand(currentBotId, 'saveMessages', payload);
+            
+            // 3. محاولة الاتصال الاحتياطي المباشر (بدون أن يوقف النظام إذا فشل)
+            try { 
+                await apiFetch('/api/messages', { method: 'PUT', body: JSON.stringify(payload) }); 
+            } catch (err) {
+                console.warn("ملاحظة: الاتصال المباشر فشل، ولكن تم الاعتماد على Firebase بنجاح.");
+            }
+            
+            toast('✅ تم حفظ كافة الرسائل بنجاح'); 
+        } catch (e) { 
+            toast('❌ فشل حفظ الرسائل', true); 
+            console.error(e);
+        }
+    }
+    
     async function saveSettings(silent = false) {
         if(!silent) toast('⏳ جاري إرسال الإعدادات عبر Firebase...');
-        const payload = { morningAdhkarTime: document.getElementById('setMorningAdhkar').value, morningWirdTime: document.getElementById('setMorningWird').value, eveningAdhkarTime: document.getElementById('setEveningAdhkar').value, eveningWirdTime: document.getElementById('setEveningWird').value, dailyReminderEnabled: document.getElementById('setDailyReminderEnabled').value === 'true', dailyReminderTime: document.getElementById('setDailyReminderTime').value };
+        // 1. جمع الإعدادات من الواجهة
+        const payload = { 
+            morningAdhkarTime: document.getElementById('setMorningAdhkar').value, 
+            morningWirdTime: document.getElementById('setMorningWird').value, 
+            eveningAdhkarTime: document.getElementById('setEveningAdhkar').value, 
+            eveningWirdTime: document.getElementById('setEveningWird').value, 
+            dailyReminderEnabled: document.getElementById('setDailyReminderEnabled').value === 'true', 
+            dailyReminderTime: document.getElementById('setDailyReminderTime').value 
+        };
+        
         try {
-            // نستخدم أمر الفايربيس لتأمين التحديث عن بعد
+            // 2. إرسال الإعدادات عبر Firebase أولاً
             await sendFirebaseCommand(currentBotId, 'saveSettings', payload);
-            // وإرسال REST كطريقة احتياطية في حال التواجد على الشبكة المحلية
-            try { await apiFetch('/api/settings', { method: 'PUT', body: JSON.stringify(payload) }); } catch(err){}
+            
+            // 3. محاولة الاتصال الاحتياطي المباشر
+            try { 
+                await apiFetch('/api/settings', { method: 'PUT', body: JSON.stringify(payload) }); 
+            } catch(err) {
+                console.warn("ملاحظة: الاتصال المباشر للإعدادات فشل، ولكن تم الاعتماد على Firebase.");
+            }
             
             if(!silent) toast('✅ تم الحفظ وإرسال الطلب للسيرفر بنجاح'); 
             
+            // تحديث الأرقام في الواجهة
             if(document.getElementById('time-morningAdhkar')) document.getElementById('time-morningAdhkar').textContent = payload.morningAdhkarTime;
             if(document.getElementById('time-eveningAdhkar')) document.getElementById('time-eveningAdhkar').textContent = payload.eveningAdhkarTime;
             if(document.getElementById('time-morningWird')) document.getElementById('time-morningWird').textContent = payload.morningWirdTime;
             if(document.getElementById('time-eveningWird')) document.getElementById('time-eveningWird').textContent = payload.eveningWirdTime;
             if(document.getElementById('time-reminder')) document.getElementById('time-reminder').textContent = payload.dailyReminderTime;
             
-        } catch (e) { toast(`❌ فشل الحفظ: ${e.message}`, true); }
+        } catch (e) { 
+            toast(`❌ فشل الحفظ: ${e.message}`, true); 
+            console.error(e);
+        }
     }
 
+
     // =========================================================
-    // TEST BUTTONS (أزرار الاختبار عبر التزامن)
+    // TEST BUTTONS
     // =========================================================
     async function runTest(taskRoute, label) {
         toast(`⏳ جاري طلب تنفيذ (${label}) عبر Firebase...`);
         try { 
             await sendFirebaseCommand(currentBotId, 'runTest', { task: taskRoute });
-            // طلب REST احتياطي
             try { await apiFetch(`/api/test/${taskRoute}`, { method: 'POST' }); } catch(err){}
             
             toast(`✅ تم إرسال أمر ${label} بنجاح`); 
