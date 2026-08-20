@@ -1,1592 +1,1051 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" class="dark">
+<html lang="ar" dir="rtl">
 <head>
-    <link rel="manifest" href="manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="نموذج مسلم">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>نموذج مسلم - فتاوى شرعية</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberVanguard - مركز القيادة</title>
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/fuse.js/dist/fuse.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-   
-    <meta name="title" content="نموذج مسلم للرد على الفتاوى">
-    <meta name="description" content="نموذج ذكاء اصطناعي متطور للإجابة على الفتاوى والمسائل الشرعية بشكل آلي مستمد حصراً من المراجع السلفية الموثوقة.">
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="نموذج مسلم للرد على الفتاوى">
-    <meta property="og:description" content="نموذج ذكاء اصطناعي متطور للإجابة على الفتاوى والمسائل الشرعية بشكل آلي مستمد حصراً من المراجع السلفية الموثوقة.">
-    <meta property="og:site_name" content="نموذج مسلم">
-
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
-        /* ===== صفحة التحميل (Splash Screen) - تصميم جذاب ===== */
-        #splash-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: #0f172a;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.6s ease;
-            font-family: 'Tajawal', sans-serif;
-        }
-        #splash-screen.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-        .splash-logo {
-            font-size: 3.5rem;
-            font-weight: 900;
-            color: #ffffff;
-            text-shadow: 0 0 30px rgba(59, 130, 246, 0.2);
-        }
-        .splash-logo span { color: #60A5FA; }
-        .splash-spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid rgba(255,255,255,0.05);
-            border-top-color: #3B82F6;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin-top: 2rem;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* ===== تحسينات للشاشات الصغيرة ===== */
-        @media (max-width: 640px) {
-            .btn-hero {
-                width: 100%;
-                max-width: 320px;
-                padding: 14px 20px;
-                font-size: 1rem;
-            }
-            .actions {
-                flex-direction: column;
-                align-items: center;
-                width: 100%;
-            }
-            .hero-bg h1 { font-size: 2rem; }
-        }
-
-        /* ===== باقي التصميم ===== */
+        /* ===== RESET & ROOT ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --bg-color: #151B2B;
-            --text-color: #f8fafc;
-            --header-bg: rgba(0, 0, 0, 0.3);
+            --bg: #0b1120; --panel: rgba(20, 30, 50, 0.65); --panel-strong: rgba(20, 30, 50, 0.85);
+            --border: rgba(255, 255, 255, 0.07); --text: #eef2f6; --muted: #8896b0;
+            --green: #2ecc71; --green-soft: rgba(46, 204, 113, 0.15);
+            --blue: #4d8cf7; --blue-soft: rgba(77, 140, 247, 0.15);
+            --red: #f1605a; --red-soft: rgba(241, 96, 90, 0.15);
+            --yellow: #f7c948; --yellow-soft: rgba(247, 201, 72, 0.15);
+            --purple: #b27cf5; --purple-soft: rgba(178, 124, 245, 0.15);
+            --radius: 20px; --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
         }
+        body { font-family: 'Tajawal', sans-serif; background: radial-gradient(circle at 50% 0%, #19233e 0%, #0b1120 100%); color: var(--text); min-height: 100vh; overflow: hidden; }
+        .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; } .custom-scroll::-webkit-scrollbar-track { background: transparent; } .custom-scroll::-webkit-scrollbar-thumb { background: rgba(77, 140, 247, 0.4); border-radius: 10px; }
+        .glass { background: var(--panel); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid var(--border); box-shadow: var(--shadow); }
+        .app { display: flex; height: 100vh; overflow: hidden; }
 
-        header {
-            background: var(--header-bg) !important;
-            backdrop-filter: blur(12px) saturate(180%) !important;
-            -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        /* ===== SESSION SELECT OVERLAY ===== */
+        #sessionSelectOverlay {
+            position: fixed; inset: 0; z-index: 10000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: radial-gradient(circle at 50% 0%, #19233e 0%, #0b1120 100%);
+            padding: 30px 20px;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
         }
-
-        .prose {
-            color: #cbd5e1 !important;
-            line-height: 1.8 !important;
+        #sessionSelectOverlay.hidden {
+            opacity: 0; visibility: hidden; pointer-events: none;
         }
-        #dropdown-menu {
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(20px) brightness(0.8);
-        }
-
-        .prose h1, .prose h2, .prose h3, .prose h4 {
-            color: #ffffff !important;
-            font-weight: 900 !important;
-            margin-top: 1.5rem !important;
-            margin-bottom: 0.75rem !important;
-            letter-spacing: -0.02em;
-            display: block;
-        }
-
-        .prose h1 { font-size: 1.8rem !important; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; }
-        .prose h2 { font-size: 1.5rem !important; }
-        .prose h3 { font-size: 1.3rem !important; }
-        .prose ul li, .prose ol li { margin-bottom: 0.5rem; position: relative; }
-        .prose strong { color: #ffffff !important; font-weight: 700; }
-
-        .prose blockquote {
-            border-right: 4px solid #3B82F6 !important;
-            border-left: none !important;
-            padding-right: 1rem !important;
-            font-style: italic;
-            background: rgba(59, 130, 246, 0.05);
-            margin: 1rem 0;
-            border-radius: 4px;
-        }
-
-        .header-glow-text {
-            font-family: 'Tajawal', sans-serif;
-            font-weight: 900;
-            color: #ffffff !important;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .menu-transition { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-        .menu-hidden { opacity: 0; transform: translateY(20px) scale(0.95); pointer-events: none; }
-        .menu-visible { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
-
-        body { 
-            font-family: 'Tajawal', sans-serif; 
-            background-color: var(--bg-color); 
-            color: var(--text-color);
-            transition: background-color 0.5s ease, color 0.5s ease;
-            overflow: hidden; 
-        }
-
-        .hero-bg {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: -1;
+        .session-select-title {
+            font-size: 2.2rem; font-weight: 900; margin-bottom: 30px;
             text-align: center;
-            width: 100%;
-            opacity: 0.4;
-            pointer-events: none;
         }
-
-        .animate-in { scroll-margin-top: 100px; }
-
-        .custom-scroll::-webkit-scrollbar { width: 4px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-
-        /* ===== تعديلات العرض الكامل وإزاحة أول سؤال لأسفل ===== */
-        .messages-container {
-            width: 100% !important;
-            max-width: 100% !important;
-            padding: 8.5rem 0 10rem 0 !important;
+        .session-select-title span { color: var(--blue); }
+        .session-select-sub {
+            color: var(--muted); margin-bottom: 40px; font-size: 1rem;
         }
-
-        .messages-container > div {
-            width: 100% !important;
-            max-width: 100% !important;
-            padding: 0 16px !important;
-            margin: 0 !important;
+        .session-cards-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 280px));
+            gap: 30px; max-width: 1000px; width: 100%; justify-content: center;
         }
-
-        .messages-container > div > div:first-child {
-            margin-top: 1.5rem !important;
+        .session-card {
+            background: var(--panel-strong); backdrop-filter: blur(12px);
+            border-radius: var(--radius); border: 1px solid var(--border);
+            overflow: hidden; cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
-
-        .ai-card {
-            background-color: var(--bg-color); 
-            backdrop-filter: blur(25px) saturate(150%) !important;
-            -webkit-backdrop-filter: blur(25px) saturate(150%);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-            transition: all 0.4s ease;
-            width: 100% !important;
-            max-width: 100% !important;
-            border-radius: 16px !important;
-            padding: 24px 20px !important;
-            margin: 0 0 20px 0 !important;
-            box-sizing: border-box !important;
+        .session-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
         }
-
-        .status-text-glow {
-            font-weight: 900;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
-            transition: all 0.3s ease;
-        }
-
-        .status-circle {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2), inset 0 2px 4px rgba(255,255,255,0.2);
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .circle-verified {
-            background: #10B981;
-            box-shadow: 0 0 15px rgba(16, 185, 129, 0.6);
-        }
-
-        /* تنسيق الفتوى المنسقة (JSON) */
-        .fatwa-container {
-            direction: rtl;
-            text-align: right;
-            color: #e2e8f0;
-            width: 100% !important;
-            max-width: 100% !important;
-        }
-        .fatwa-container .section {
-            margin-bottom: 16px;
-            padding: 12px 16px;
-            border-radius: 16px;
-            background: rgba(255,255,255,0.02);
-            transition: all 0.3s;
-            width: 100%;
-        }
-        .fatwa-container .section:hover {
-            background: rgba(255,255,255,0.04);
-        }
-        .fatwa-container .section h3 {
-            font-size: 1.5rem !important;
-            font-weight: 900 !important;
-            color: #60A5FA !important;
-            margin-bottom: 8px !important;
-            display: flex !important;
-            align-items: center !important;
-            gap: 8px !important;
-            border-bottom: 2px solid rgba(96, 165, 250, 0.15) !important;
-            padding-bottom: 4px !important;
-        }
-        .fatwa-container .section li {
-            font-size: 1.05rem !important;
-            line-height: 1.9 !important;
-            color: #e2e8f0 !important;
-            margin-bottom: 4px !important;
-            list-style: disc !important;
-            padding-right: 8px !important;
-        }
-        .fatwa-container .section p {
-            color: #e2e8f0;
-            line-height: 1.9;
-            font-size: 1.05rem !important;
-        }
-        .fatwa-container .final-phrase {
-            text-align: center;
-            font-weight: 700;
-            color: #94a3b8;
-            margin-top: 16px;
-            padding-top: 12px;
-            border-top: 1px solid rgba(255,255,255,0.05);
-        }
-        .fatwa-container .category-badge {
-            display: inline-block;
-            background: rgba(59, 130, 246, 0.2);
-            color: #93C5FD;
-            padding: 4px 16px;
-            border-radius: 30px;
-            font-size: 0.8rem;
-            margin-top: 8px;
-        }
-        .fatwa-container h2 {
-            font-size: 2rem !important;
-            font-weight: 900 !important;
-            color: #60A5FA !important;
-            border-bottom: 2px solid rgba(96, 165, 250, 0.2) !important;
-            padding-bottom: 8px !important;
-            margin-bottom: 20px !important;
-        }
-
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(12px);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .modal-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .modal-content {
-            background: #1e293b;
-            border-radius: 32px;
-            padding: 32px;
-            max-width: 600px;
-            width: 90%;
-            max-height: 85vh;
-            overflow-y: auto;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transform: scale(0.9);
-            transition: transform 0.3s ease;
-        }
-
-        .modal-overlay.active .modal-content {
-            transform: scale(1);
-        }
-
-        .preview-fatwa-card {
-            background: rgba(255,255,255,0.03);
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.06);
-            overflow: hidden;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            backdrop-filter: blur(4px);
-            display: flex;
-            flex-direction: column;
-            height: auto !important;
-        }
-        .preview-fatwa-card:hover {
-            background: rgba(255,255,255,0.07);
-            border-color: rgba(59,130,246,0.3);
-            transform: translateY(-4px);
-            box-shadow: 0 12px 30px rgba(0,0,0,0.4);
-        }
-        .preview-color-bar {
-            height: 6px;
-            width: 100%;
-            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6);
+        .session-card .gradient-bar {
+            height: 6px; width: 100%;
+            background: linear-gradient(90deg, #4d8cf7, #b27cf5, #f7c948, #2ecc71, #4d8cf7);
             background-size: 300% 100%;
-            animation: colorMove 4s linear infinite;
+            animation: moveGradient 4s linear infinite;
         }
-        @keyframes colorMove {
+        @keyframes moveGradient {
             0% { background-position: 0% 0%; }
             100% { background-position: 300% 0%; }
         }
-        .preview-card-body {
-            padding: 20px;
-            flex: 1;
+        .session-card .card-content {
+            padding: 20px 18px 18px;
+            display: flex; flex-direction: column; align-items: center;
         }
-        .preview-card-body h3 {
-            color: #f1f5f9;
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-            line-height: 1.5;
+        .session-card .card-content i {
+            width: 48px; height: 48px; color: var(--blue);
+            margin-bottom: 12px;
         }
-        .preview-card-body .preview-text {
-            color: #94a3b8;
-            font-size: 0.9rem;
-            line-height: 1.7;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            text-overflow: ellipsis;
+        .session-card .card-content .session-name {
+            font-weight: 900; font-size: 1.1rem; text-align: center;
+            margin-bottom: 6px;
         }
-        .preview-card-body .full-text {
-            color: #cbd5e1;
-            font-size: 0.95rem;
-            line-height: 1.8;
+        .session-card .card-content .session-id {
+            font-size: 0.7rem; color: var(--muted);
+            direction: ltr; unicode-bidi: plaintext;
+        }
+        .session-card .card-content .session-badge {
             margin-top: 12px;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            padding-top: 12px;
-            display: none;
+            background: var(--blue-soft); color: var(--blue);
+            padding: 4px 16px; border-radius: 30px;
+            font-size: 0.7rem; font-weight: 700;
         }
-        .preview-card-body .full-text.expanded {
-            display: block;
+        .session-card .card-content .session-badge.secured {
+            background: var(--yellow-soft); color: var(--yellow);
         }
-        .preview-expand-btn {
-            background: rgba(59,130,246,0.15);
-            color: #93c5fd;
-            border: none;
-            padding: 6px 18px;
-            border-radius: 30px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            margin-top: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-            width: fit-content;
-        }
-        .preview-expand-btn:hover {
-            background: rgba(59,130,246,0.3);
+        .session-card .card-content .session-badge.unsecured {
+            background: var(--green-soft); color: var(--green);
         }
 
-        .messages-container {
-            scroll-behavior: smooth;
-        }
-        
-        .action-buttons {
-            display: flex;
-            gap: 8px;
-            margin-top: 12px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        .action-btn {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.08);
-            color: #94a3b8;
-            padding: 6px 16px;
-            border-radius: 40px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-family: 'Tajawal', sans-serif;
-        }
-        .action-btn:hover {
-            background: rgba(59, 130, 246, 0.15);
-            border-color: #3b82f6;
-            color: #93c5fd;
-        }
-        .action-btn i {
-            width: 16px;
-            height: 16px;
-        }
+        /* ===== SIDEBAR ===== */
+        .sidebar { width: 260px; min-width: 260px; display: flex; flex-direction: column; border-left: 1px solid var(--border); position: relative; z-index: 50; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .sidebar-brand { padding: 28px 24px 20px; border-bottom: 1px solid var(--border); text-align: center; }
+        .sidebar-brand h1 { font-size: 1.6rem; font-weight: 900; letter-spacing: 1px; } .sidebar-brand h1 span { color: var(--blue); }
+        .session-selector { padding: 15px; border-bottom: 1px solid var(--border); }
+        .session-selector select { width: 100%; padding: 10px; border-radius: 12px; background: rgba(0,0,0,0.4); border: 1px solid var(--blue); color: var(--text); font-family: 'Tajawal', sans-serif; font-weight: 700; outline: none; cursor: pointer;}
+        .sidebar-nav { flex: 1; padding: 16px 12px; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
+        .nav-item { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: 14px; color: var(--muted); font-weight: 700; font-size: 0.95rem; transition: all 0.2s; cursor: pointer; border: none; background: transparent; width: 100%; text-align: right; font-family: 'Tajawal', sans-serif; }
+        .nav-item:hover { background: rgba(255, 255, 255, 0.04); color: var(--text); } .nav-item.active { background: var(--blue-soft); color: var(--blue); border-right: 3px solid var(--blue); } .nav-item i { width: 22px; height: 22px; flex-shrink: 0; }
+        .sidebar-footer { padding: 18px 16px; border-top: 1px solid var(--border); }
+        .sidebar-footer button { width: 100%; padding: 12px; border-radius: 14px; border: none; background: var(--red-soft); color: var(--red); font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: 0.2s; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; justify-content: center; gap: 8px; }
 
-        footer .max-w-3xl {
-            max-width: 100% !important;
-            width: 100% !important;
-            padding: 0 12px !important;
-        }
-        
-        .loading-fade {
-            transition: opacity 0.3s ease-in-out;
-            opacity: 1;
-        }
-        
-        .loading-fade.fade-out {
-            opacity: 0;
-        }
+        /* ===== MAIN ===== */
+        .main { flex: 1; overflow-y: auto; padding: 24px 30px 40px; background: rgba(11, 17, 32, 0.5); position: relative; }
+        .main::before { content: ''; position: fixed; inset: 0; pointer-events: none; background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgdmlld0JveD0iMCAwIDgwIDgwIj48cGF0aCBkPSJNMzAgMCA2MCAzMCAzMCA2MCAwIDMwIDAgMzB6IiBmaWxsPSJub25lIiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMC4wMykiIHN0cm9rZS13aWR0aD0iMSIvPjwvc3ZnPg=='); background-size: 80px 80px; opacity: 0.5; z-index: 0; }
+        .main > * { position: relative; z-index: 1; }
+        .mobile-header { display: none; padding: 16px 20px; border-bottom: 1px solid var(--border); justify-content: space-between; align-items: center; margin: -24px -30px 20px; background: var(--panel); backdrop-filter: blur(18px); }
+        .mobile-header h2 { font-size: 1.2rem; font-weight: 900; } .mobile-header h2 span { color: var(--blue); }
+        .mobile-header button { background: var(--blue-soft); border: none; color: var(--blue); padding: 8px 12px; border-radius: 12px; cursor: pointer; }
+        .overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(6px); z-index: 40; transition: opacity 0.3s; } .overlay.show { display: block; }
+        .tab-content { display: none; animation: fadeUp 0.35s ease; } .tab-content.active { display: block; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- تأثير الضوء المتحرك على النص (shimmer) --- */
-        .shimmer-text {
-            background: linear-gradient(90deg, #60A5FA 0%, #FFFFFF 50%, #60A5FA 100%);
-            background-size: 200% auto;
-            color: transparent !important;
-            -webkit-background-clip: text;
-            background-clip: text;
-            animation: shimmer 1.5s linear infinite;
-        }
-        @keyframes shimmer {
-            to { background-position: 200% center; }
-        }
+        /* ===== AUTH MODAL ===== */
+        .auth-overlay { position: fixed; inset: 0; background: rgba(11, 17, 32, 0.9); backdrop-filter: blur(20px); z-index: 9999; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: 0.3s; }
+        .auth-overlay.active { opacity: 1; visibility: visible; }
+        .auth-box { background: var(--panel-strong); border: 1px solid var(--blue); padding: 40px; border-radius: 24px; text-align: center; width: 90%; max-width: 400px; transform: translateY(20px); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        .auth-overlay.active .auth-box { transform: translateY(0); }
+        .auth-box i { color: var(--blue); width: 48px; height: 48px; margin-bottom: 15px; }
+        .auth-box h2 { margin-bottom: 10px; font-weight: 900; }
+        .auth-box p { color: var(--muted); font-size: 0.9rem; margin-bottom: 25px; }
+        .auth-box input { background: rgba(0,0,0,0.5); border: 1px solid var(--border); color: #fff; padding: 15px; border-radius: 12px; font-size: 1.2rem; text-align: center; letter-spacing: 5px; width: 100%; margin-bottom: 20px; font-family: 'Courier New', Courier, monospace;}
+        .auth-box input:focus { border-color: var(--blue); box-shadow: 0 0 15px var(--blue-soft); outline: none; }
+        .auth-box button { width: 100%; padding: 15px; border-radius: 12px; background: var(--blue); color: #fff; font-weight: 900; border: none; cursor: pointer; font-family: 'Tajawal', sans-serif; font-size: 1.1rem; transition: 0.2s; }
+        .auth-box button:hover { background: #3a7bd5; transform: translateY(-2px); }
 
-        /* --- الدائرة الدوارة الأساسية --- */
-        .loading-spinner {
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            100% { transform: rotate(360deg); }
-        }
+        /* ===== COMPONENTS ===== */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 16px; margin-bottom: 28px; }
+        .stat-card { padding: 16px 18px; border-radius: 16px; background: rgba(0, 0, 0, 0.25); border: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+        .stat-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .stat-icon.blue { background: var(--blue-soft); color: var(--blue); } .stat-icon.green { background: var(--green-soft); color: var(--green); } .stat-icon.yellow { background: var(--yellow-soft); color: var(--yellow); } .stat-icon.red { background: var(--red-soft); color: var(--red); } .stat-icon.purple { background: var(--purple-soft); color: var(--purple); }
+        .stat-info .label { font-size: 0.65rem; color: var(--muted); font-weight: 700; } .stat-info .value { font-size: 1.4rem; font-weight: 900; line-height: 1.2; }
 
-        /* --- الإطار الدوار بالسهمين والحلقات --- */
-        .frame-arrows {
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .ring {
-            position: absolute;
-            border-radius: 50%;
-            border: 3px solid transparent;
-            animation: spin 2.2s linear infinite;
-        }
-        .ring-1 {
-            width: 100%;
-            height: 100%;
-            border-top-color: #60A5FA;
-            border-right-color: #A78BFA;
-        }
-        .ring-2 {
-            width: 80%;
-            height: 80%;
-            border-bottom-color: #F472B6;
-            border-left-color: #34D399;
-            animation-duration: 1.8s;
-            animation-direction: reverse;
-        }
-        .arrow-icon {
-            position: absolute;
-            color: #93C5FD;
-            opacity: 0.9;
-            filter: drop-shadow(0 0 8px rgba(96, 165, 250, 0.6));
-            font-style: normal;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .arrow-top {
-            animation: floatArrow 2.4s ease-in-out infinite;
-        }
-        .arrow-bottom {
-            animation: floatArrow 2.4s ease-in-out infinite reverse;
-        }
-        @keyframes floatArrow {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(10px) rotate(8deg); }
-        }
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; margin-bottom: 20px; }
+        .card { background: var(--panel-strong); backdrop-filter: blur(12px); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; transition: all 0.3s ease; display: flex; flex-direction: column; }
+        .card-header { padding: 14px 18px; font-weight: 900; font-size: 1rem; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255, 255, 255, 0.05); background: linear-gradient(135deg, rgba(77, 140, 247, 0.2), rgba(178, 124, 245, 0.2)); }
+        .card-body { padding: 16px 18px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+        .card-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; }
+        .card-row .label { color: var(--muted); } .card-row .value { font-weight: 700; }
+        .card-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+
+        .countdown { font-size: 1.6rem; font-weight: 900; color: var(--blue); direction: ltr; text-align: center; padding: 4px 0; }
+        .countdown.done { color: var(--green); } .countdown.running { color: var(--yellow); animation: pulse 1s infinite; }
+
+        .btn { padding: 8px 16px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; transition: 0.2s; font-family: 'Tajawal', sans-serif; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 6px; }
+        .btn:hover { transform: translateY(-1px); }
+        .btn-blue { background: var(--blue); color: #fff; } .btn-green { background: var(--green); color: #0b1120; } .btn-yellow { background: var(--yellow); color: #0b1120; } .btn-red { background: var(--red); color: #fff; }
         
-        .voice-bar {
-    width: 6px;
-    height: 8px;
-    border-radius: 20px;
-    background: linear-gradient(180deg,#60A5FA,#A78BFA,#F472B6);
-    transition: height 0.08s ease;
-}
+        .table-wrap { overflow-x: auto; border-radius: 14px; border: 1px solid var(--border); max-height: 340px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; font-size: 0.8rem; }
+        th { background: rgba(0, 0, 0, 0.4); color: var(--blue); font-weight: 700; padding: 12px 14px; text-align: right; position: sticky; top: 0; z-index: 2; }
+        td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: #cbd5e1; }
         
+        input, textarea, select { width: 100%; padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border); background: rgba(0, 0, 0, 0.3); color: var(--text); font-family: 'Tajawal', sans-serif; font-size: 0.85rem; outline: none; transition: 0.2s; }
+        input:focus, textarea:focus, select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-soft); }
+
+        .file-upload-wrap { position: relative; overflow: hidden; margin-bottom: 12px; }
+        .file-upload-wrap input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+        .file-upload-label { display: block; padding: 14px; border: 2px dashed var(--border); border-radius: 14px; text-align: center; color: var(--muted); transition: 0.2s; background: rgba(0, 0, 0, 0.15); }
+        .file-upload-label:hover { border-color: var(--blue); color: var(--text); }
+        
+        .add-user-card { background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border); padding: 15px; border-radius: 16px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 20px;}
+        .add-user-card input { flex: 1; min-width: 200px; border-color: rgba(77, 140, 247, 0.3); }
+
+        /* ===== TOAST NOTIFICATION ===== */
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); padding: 12px 24px; border-radius: 16px; background: var(--panel-strong); backdrop-filter: blur(20px); border: 1px solid var(--border); color: var(--text); font-weight: 700; z-index: 99999; display: none; max-width: 90%; text-align: center; animation: fadeUp 0.3s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .toast.show { display: block; }
+        
+        /* Terminal & Charts */
+        .terminal { background: rgba(0, 0, 0, 0.6); border-radius: 14px; padding: 12px 16px; font-family: 'Courier New', monospace; font-size: 0.75rem; max-height: 160px; overflow-y: auto; border: 1px solid var(--border); margin-top: 10px; }
+        .terminal .line { padding: 2px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.04); color: var(--muted); }
+        .terminal .line .time { color: var(--yellow); } .terminal .line .type { color: var(--blue); font-weight: 700; }
+        .terminal .line .err { color: var(--red); } .terminal .line .ok { color: var(--green); }
+        .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin: 20px 0; }
+        .chart-box { background: var(--panel-strong); border-radius: var(--radius); padding: 16px; border: 1px solid var(--border); }
+        .chart-box h4 { font-size: 0.8rem; color: var(--muted); margin-bottom: 10px; }
+        .chart-box canvas { max-height: 180px; }
+        
+        /* MODAL */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(10px); z-index: 200; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: 0.3s; padding: 20px; }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-box { background: #1e293b; border-radius: 28px; padding: 28px; max-width: 700px; width: 100%; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border); transform: scale(0.95); transition: 0.3s; }
+        .modal-overlay.active .modal-box { transform: scale(1); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-header h3 { font-size: 1.3rem; font-weight: 900; }
+        .modal-close { background: none; border: none; color: var(--muted); cursor: pointer; padding: 4px; }
+        
+        /* ===== MESSAGES EDITOR (FULL WIDTH) ===== */
+        .msg-container { display: flex; flex-direction: column; gap: 16px; }
+        .msg-block { background: rgba(0, 0, 0, 0.2); padding: 16px; border-radius: 16px; border: 1px solid var(--border); }
+        .msg-block label { color: var(--blue); font-size: 0.9rem; font-weight: 900; display: block; margin-bottom: 8px; }
+        .msg-block textarea { min-height: 90px; resize: vertical; background: rgba(0,0,0,0.4); font-size: 0.9rem; }
+
+        @media (max-width: 768px) {
+            .sidebar { position: fixed; top: 0; right: 0; bottom: 0; transform: translateX(100%); width: 280px; background: #0b1120; border-left: none; box-shadow: -10px 0 40px rgba(0, 0, 0, 0.6); }
+            .sidebar.open { transform: translateX(0); } .mobile-header { display: flex; } .main { padding: 16px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); } .card-grid { grid-template-columns: 1fr; }
+            .chart-grid { grid-template-columns: 1fr; }
+            .session-cards-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; }
+            .session-select-title { font-size: 1.6rem; }
+        }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .mb-2 { margin-bottom: 10px; } .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     </style>
 </head>
 <body>
-    <div id="splash-screen">
-        <div class="splash-logo">نموذج <span>مسلم</span></div>
-        <div class="splash-spinner"></div>
+
+<!-- SESSION SELECT OVERLAY -->
+<div id="sessionSelectOverlay">
+    <div class="session-select-title">🛡️ Cyber<span>Vanguard</span></div>
+    <div class="session-select-sub">اختر جلسة القيادة للدخول</div>
+    <div class="session-cards-grid" id="sessionCardsGrid"></div>
+</div>
+
+<!-- AUTHENTICATION OVERLAY -->
+<div class="auth-overlay" id="authOverlay">
+    <div class="auth-box">
+        <i data-lucide="shield-check"></i>
+        <h2>حماية الجلسة</h2>
+        <p id="authSessionName">برجاء إدخال كلمة المرور للوصول</p>
+        <input type="password" id="authPasswordInput" placeholder="••••" autocomplete="off" onkeypress="if(event.key === 'Enter') submitPassword()">
+        <button onclick="submitPassword()">دخول آمن</button>
     </div>
+</div>
 
-    <div id="root"></div>
+<!-- MAIN APPLICATION (hidden initially) -->
+<div class="app" id="mainApp" style="display:none;">
+    <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
 
-    <div id="reportModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-black text-white">الإبلاغ عن مشكلة</h2>
-                <button onclick="closeReportModal()" class="text-white/50 hover:text-white">
-                    <i data-lucide="x" class="w-6 h-6"></i>
-                </button>
+    <!-- SIDEBAR -->
+    <aside class="sidebar glass" id="sidebar">
+        <div class="sidebar-brand">
+            <h1>🛡️ Cyber<span>Vanguard</span></h1>
+            <small>COMMAND CENTER v3.0</small>
+        </div>
+        <div class="session-selector">
+            <select id="sessionSwitcher" onchange="initiateSessionChange(this.value)"></select>
+        </div>
+        <nav class="sidebar-nav custom-scroll">
+            <button class="nav-item active" data-tab="dashboard" onclick="switchTab('dashboard')"><i data-lucide="layout-dashboard"></i> الرئيسية</button>
+            <button class="nav-item" data-tab="users" onclick="switchTab('users')"><i data-lucide="users"></i> المستخدمون</button>
+            <button class="nav-item" data-tab="messages" onclick="switchTab('messages')"><i data-lucide="message-square"></i> الرسائل</button>
+            <button class="nav-item" data-tab="quran" onclick="switchTab('quran')"><i data-lucide="book-open"></i> صور الورد</button>
+            <button class="nav-item" data-tab="settings" onclick="switchTab('settings')"><i data-lucide="settings"></i> الإعدادات</button>
+        </nav>
+        <div class="sidebar-footer">
+            <button onclick="logoutToSessionSelect()"><i data-lucide="log-out"></i> تغيير الجلسة</button>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main custom-scroll">
+        <div class="mobile-header">
+            <h2>🛡️ Cyber<span>Vanguard</span></h2>
+            <button onclick="toggleSidebar()"><i data-lucide="menu"></i></button>
+        </div>
+
+        <!-- TAB: DASHBOARD -->
+        <section class="tab-content active" id="tab-dashboard">
+            <div class="flex-between mb-2">
+                <div><h2 style="font-size:1.6rem;font-weight:900;">📊 رادار البيانات</h2></div>
+                <button class="btn btn-blue" onclick="fetchDashboard()">🔄 تحديث</button>
             </div>
-            <textarea id="reportText" rows="5" placeholder="يرجى وصف المشكلة بالتفصيل..." class="w-full bg-black/30 border border-white/10 rounded-2xl p-4 text-white placeholder-white/50 resize-none"></textarea>
-            <div class="flex gap-3 mt-6">
-                <button onclick="submitReport()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-2xl transition-all">إرسال</button>
-                <button onclick="closeReportModal()" class="flex-1 bg-white/10 hover:bg-white/20 text-white font-bold py-3 rounded-2xl transition-all">إلغاء</button>
+            
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card"><div class="stat-icon blue"><i data-lucide="bot"></i></div><div class="stat-info"><div class="label">حالة الجلسة</div><div class="value" id="sBotStatus" style="font-size:1rem;">...</div></div></div>
+                <div class="stat-card"><div class="stat-icon green"><i data-lucide="users"></i></div><div class="stat-info"><div class="label">✅ المشتركين</div><div class="value" id="sActive">0</div></div></div>
+                <div class="stat-card"><div class="stat-icon purple"><i data-lucide="image"></i></div><div class="stat-info"><div class="label">📖 صور الورد</div><div class="value" id="sQuran">0</div></div></div>
+                <div class="stat-card"><div class="stat-icon blue"><i data-lucide="send"></i></div><div class="stat-info"><div class="label">📤 رسائل مرسلة</div><div class="value" id="sSent">0</div></div></div>
             </div>
+            
+            <div class="card-grid" id="taskCards"></div>
+            
+            <!-- أزرار الاختبار مع زر التذكير -->
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 16px; border: 1px solid var(--border);">
+                <button class="btn btn-blue" onclick="runTest('morning-adhkar','أذكار الصباح')">🌅 أذكار الصباح الآن</button>
+                <button class="btn btn-blue" onclick="runTest('evening-adhkar','أذكار المساء')">🌙 أذكار المساء الآن</button>
+                <button class="btn btn-green" onclick="runTest('morning-wird','الورد الصباحي')">📖 ورد الصباح الآن</button>
+                <button class="btn btn-green" onclick="runTest('evening-wird','الورد المسائي')">📖 ورد المساء الآن</button>
+                <button class="btn btn-yellow" onclick="runTest('reminder','التذكير اليومي')">🔔 إرسال التذكير</button>
+            </div>
+
+            <!-- Charts -->
+            <div class="chart-grid" id="chartGrid">
+                <div class="chart-box"><h4>📊 الرسائل المرسلة (آخر 24 ساعة)</h4><canvas id="chart24h"></canvas></div>
+                <div class="chart-box"><h4>📈 الرسائل المرسلة (آخر 7 أيام)</h4><canvas id="chart7d"></canvas></div>
+                <div class="chart-box"><h4>👥 توزيع المستخدمين</h4><canvas id="chartUsers"></canvas></div>
+                <div class="chart-box"><h4>✅ نجاح / ❌ فشل العمليات</h4><canvas id="chartSuccessFail"></canvas></div>
+                <div class="chart-box"><h4>📋 تنفيذ المهام اليومية</h4><canvas id="chartTasks"></canvas></div>
+            </div>
+
+            <!-- Terminal -->
+            <div style="background:var(--panel-strong);border-radius:var(--radius);padding:16px 20px;border:1px solid var(--border);">
+                <div class="flex-between">
+                    <h4 style="font-weight:900;">💻 SYSTEM OPERATIONS TERMINAL</h4>
+                    <span id="liveCurrent" style="color:var(--yellow);font-size:0.8rem;">🟡 جاري المراقبة...</span>
+                </div>
+                <div class="terminal custom-scroll" id="terminalLogs">
+                    <div class="line">[--:--:--] SYSTEM جاري المراقبة...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB: USERS -->
+        <section class="tab-content" id="tab-users">
+            <div class="flex-between mb-2">
+                <h2 style="font-size:1.5rem;font-weight:900;">👥 المستخدمون</h2>
+                <button class="btn btn-blue" onclick="fetchUsers()">🔄 تحديث القائمة</button>
+            </div>
+            <div class="add-user-card glass-card">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <i data-lucide="user-plus" style="color:var(--blue);"></i>
+                    <span style="font-weight:700;">تسجيل مستخدم جديد:</span>
+                </div>
+                <input type="text" id="manualUserPhone" placeholder="رقم الواتساب (مثال: 2010...)">
+                <button class="btn btn-green" onclick="addManualUser()">إضافة وتفعيل سريع ⚡</button>
+            </div>
+            
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>الاسم</th><th>JID</th><th>الحالة</th><th>تاريخ الاشتراك</th></tr></thead>
+                    <tbody id="usersBody"><tr><td colspan="4" style="text-align:center;color:var(--muted);">جاري التحميل...</td></tr></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- TAB: MESSAGES (تحديث الشكل ليكون مستطيلات مستقلة) -->
+        <section class="tab-content" id="tab-messages">
+            <div class="flex-between mb-2">
+                <h2 style="font-size:1.5rem;font-weight:900;">✏️ محرر الرسائل</h2>
+                <button class="btn btn-green" onclick="saveMessages()">💾 حفظ كل الرسائل</button>
+            </div>
+            
+            <div class="msg-container" id="messagesGrid">
+                <div class="msg-block">
+                    <label>👋 الترحيب (تُرسل للمستخدمين الجدد)</label>
+                    <textarea id="msgWelcome" rows="5"></textarea>
+                </div>
+                <div class="msg-block">
+                    <label>🌅 أذكار الصباح</label>
+                    <textarea id="msgMorningAdhkar" rows="4"></textarea>
+                </div>
+                <div class="msg-block">
+                    <label>🌙 أذكار المساء</label>
+                    <textarea id="msgEveningAdhkar" rows="4"></textarea>
+                </div>
+                <div class="msg-block">
+                    <label>📖 الورد الصباحي (النص المرفق مع الصورة)</label>
+                    <textarea id="msgMorningWird" rows="3"></textarea>
+                </div>
+                <div class="msg-block">
+                    <label>📖 الورد المسائي (النص المرفق مع الصورة)</label>
+                    <textarea id="msgEveningWird" rows="3"></textarea>
+                </div>
+                <div class="msg-block">
+                    <label>🔔 التذكير اليومي</label>
+                    <textarea id="msgDailyReminder" rows="3"></textarea>
+                </div>
+            </div>
+            
+            <div style="text-align: left; margin-top: 15px;">
+                <button class="btn btn-green" onclick="saveMessages()">💾 تأكيد وحفظ</button>
+            </div>
+        </section>
+
+        <!-- TAB: QURAN IMAGES -->
+        <section class="tab-content" id="tab-quran">
+            <div class="flex-between mb-2">
+                <h2 style="font-size:1.5rem;font-weight:900;">📖 إدارة صور الورد</h2>
+                <button class="btn btn-blue" onclick="fetchQuranImages()">🔄 تحديث</button>
+            </div>
+            <div class="file-upload-wrap">
+                <input type="file" id="quranFileInput" accept="image/*" multiple>
+                <div class="file-upload-label">📤 اختر صوراً للرفع (JPG, PNG)</div>
+            </div>
+            <div id="quranList" style="max-height:300px;overflow-y:auto;padding:4px 0;"></div>
+        </section>
+
+        <!-- TAB: SETTINGS -->
+        <section class="tab-content" id="tab-settings">
+            <div class="flex-between mb-2">
+                <h2 style="font-size:1.5rem;font-weight:900;">⚙️ الإعدادات</h2>
+                <button class="btn btn-green" onclick="saveSettings()">💾 حفظ الإعدادات</button>
+            </div>
+            <div class="grid-2">
+                <input type="hidden" id="setMorningAdhkar" value="06:00">
+                <input type="hidden" id="setMorningWird" value="06:05">
+                <input type="hidden" id="setEveningAdhkar" value="18:00">
+                <input type="hidden" id="setEveningWird" value="18:05">
+                <input type="hidden" id="setDailyReminderTime" value="12:00">
+                <div>
+                    <label style="color:var(--muted);font-size:0.75rem;font-weight:700;">🔔 التذكير اليومي</label>
+                    <select id="setDailyReminderEnabled"><option value="true">مفعل</option><option value="false">معطل</option></select>
+                </div>
+                <div>
+                    <label style="color:var(--muted);font-size:0.75rem;font-weight:700;">🌍 التوقيت</label>
+                    <input id="setTimezone" value="Africa/Cairo" readonly style="opacity:0.5;">
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<!-- TIME PICKER MODAL -->
+<div class="modal-overlay time-picker-modal" id="timePickerModal">
+    <div class="modal-box" style="max-width:400px; text-align:center;">
+        <h3 style="margin-bottom:20px;">⏱️ تعديل الوقت</h3>
+        <div class="picker-group">
+            <select id="tpHour"></select><span class="colon">:</span><select id="tpMinute"></select>
+            <span style="margin:0 8px;color:var(--muted);">|</span>
+            <select id="tpAmPm"><option value="AM">صباحاً</option><option value="PM">مساءً</option></select>
+        </div>
+        <div style="display:flex;gap:12px;justify-content:center;margin-top:20px;">
+            <button class="btn btn-green" onclick="confirmTimePicker()">تأكيد وحفظ</button>
+            <button class="btn btn-outline" onclick="closeTimePicker()">إلغاء</button>
         </div>
     </div>
+</div>
 
-    <div id="ratingModal" class="modal-overlay">
-        <div class="modal-content text-center">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-black text-white">تقييم الفتوى</h2>
-                <button onclick="closeRatingModal()" class="text-white/50 hover:text-white">
-                    <i data-lucide="x" class="w-6 h-6"></i>
-                </button>
-            </div>
-            <p class="text-slate-300 mb-6">ما مدى فائدة هذه الفتوى؟ اختر عدد النجوم:</p>
-            <div class="flex justify-center gap-3 mb-6" id="star-rating-container">
-                <button onclick="submitRating(1)" class="text-3xl hover:scale-125 transition-transform">⭐</button>
-                <button onclick="submitRating(2)" class="text-3xl hover:scale-125 transition-transform">⭐</button>
-                <button onclick="submitRating(3)" class="text-3xl hover:scale-125 transition-transform">⭐</button>
-                <button onclick="submitRating(4)" class="text-3xl hover:scale-125 transition-transform">⭐</button>
-                <button onclick="submitRating(5)" class="text-3xl hover:scale-125 transition-transform">⭐</button>
-            </div>
-            <div id="rating-stats" class="bg-white/5 p-4 rounded-2xl text-slate-300">
-                <div class="text-lg font-bold text-blue-400 mb-1" id="rating-average">التقييم: -- / 5</div>
-                <div class="text-xs text-slate-400" id="rating-count">(0 تقييمات)</div>
-            </div>
-        </div>
-    </div>
+<!-- ===== TOAST (تم تفعيله بقوة هنا) ===== -->
+<div class="toast" id="toast"></div>
 
-    <script>
-        window.openReportModal = function(question = null) {
-            const modal = document.getElementById('reportModal');
-            const textarea = document.getElementById('reportText');
-            if (modal && textarea) {
-                textarea.value = question ? `السؤال: ${question}\n\nالمشكلة: ` : '';
-                modal.classList.add('active');
+<script>
+    // =========================================================
+    // GLOBAL ERROR HANDLING
+    // =========================================================
+    window.onerror = function(msg, url, lineNo, columnNo, error) {
+        console.error('Frontend Error:', msg, error);
+        toast(`⚠️ حدث خطأ، راجع الـ Console`, true);
+        return false;
+    };
+
+    // =========================================================
+    // CONFIG, STATE & AUTH
+    // =========================================================
+    const API_KEY = 'VANGUARD-2026-OMAR';
+    const baseURL = '';
+    let currentBotId = ''; 
+    let currentSessionPassword = ''; 
+
+    lucide.createIcons();
+
+    // =========================================================
+    // FIREBASE INITIALIZATION & CONFIG
+    // =========================================================
+    const firebaseConfig = {
+        apiKey: "AIzaSyC4n627jxgPjoQn7icO9OP9C3ImcAbLEME",
+        authDomain: "private-d338e.firebaseapp.com",
+        databaseURL: "https://private-d338e-default-rtdb.firebaseio.com",
+        projectId: "private-d338e",
+        storageBucket: "private-d338e.firebasestorage.app",
+        messagingSenderId: "514393440915",
+        appId: "1:514393440915:web:b72e886e866f45ab948366",
+        measurementId: "G-Z8RT3VY8SL"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const fb = firebase.database();
+
+    function sendFirebaseCommand(botId, action, payload = {}) {
+        const cmdRef = fb.ref(`bots/${botId}/commands`).push();
+        return cmdRef.set({
+            action,
+            payload,
+            status: 'pending',
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+    }
+
+    function initFirebaseSync(botId) {
+        if (!botId) return;
+        fb.ref(`bots/${botId}/state`).on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (!data) return;
+
+            // تحديث إحصائيات لوحة التحكم في الوقت الفعلي
+            if(document.getElementById('sBotStatus')) document.getElementById('sBotStatus').textContent = data.status || 'غير متصل';
+            if(document.getElementById('sActive')) document.getElementById('sActive').textContent = data.activeSubscribers ?? 0;
+            if(document.getElementById('sSent')) document.getElementById('sSent').textContent = data.totalMessagesSent ?? 0;
+            if(document.getElementById('sQuran')) document.getElementById('sQuran').textContent = data.quranImagesCount ?? 0;
+
+            if (data.settings) {
+                renderTaskCards(data.settings);
+                syncCountdowns(data.settings);
             }
-        };
+        });
+    }
 
-        window.closeReportModal = function() {
-            const modal = document.getElementById('reportModal');
-            if (modal) {
-                modal.classList.remove('active');
-                document.getElementById('reportText').value = '';
-            }
-        };
-
-        window.submitReport = async function() {
-            const problem = document.getElementById('reportText').value;
-            if (!problem.trim()) {
-                showNotification("يرجى كتابة المشكلة", "error");
-                return;
-            }
-            await sendReportNotification(problem);
-            showNotification("تم إرسال البلاغ بنجاح، شكراً لك!");
-            closeReportModal();
-        };
-
-        setTimeout(() => {
-            const splash = document.getElementById('splash-screen');
-            if (splash) {
-                splash.classList.add('hidden'); 
-            }
-        }, 1500);
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyC4n627jxgPjoQn7icO9OP9C3ImcAbLEME",
-            authDomain: "private-d338e.firebaseapp.com",
-            databaseURL: "https://private-d338e-default-rtdb.firebaseio.com",
-            projectId: "private-d338e",
-            storageBucket: "private-d338e.firebasestorage.app",
-            messagingSenderId: "514393440915",
-            appId: "1:514393440915:web:b72e886e866f45ab948366",
-            measurementId: "G-Z8RT3VY8SL"
-        };
+    // دالة التوست المحدثة والقوية
+    function toast(msg, isError = false) {
+        const el = document.getElementById('toast');
+        el.textContent = msg; 
+        el.style.borderColor = isError ? 'var(--red)' : 'var(--green)';
+        el.style.color = isError ? '#ffaaaa' : '#fff';
         
-        if (!firebase.apps || !firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
+        el.classList.remove('show');
+        // تفريغ الكلاس وإضافته مجدداً لتفعيل الـ Animation
+        void el.offsetWidth; 
+        el.classList.add('show'); 
+        
+        clearTimeout(el._timeout);
+        el._timeout = setTimeout(() => el.classList.remove('show'), 4500);
+    }
+
+    async function apiFetch(url, options = {}) {
+        const joiner = url.includes('?') ? '&' : '?';
+        const finalUrl = currentBotId ? `${baseURL}${url}${joiner}bot=${currentBotId}` : `${baseURL}${url}`;
+        
+        const headers = { 'Authorization': API_KEY, 'Content-Type': 'application/json', ...(options.headers || {}) };
+        if (currentSessionPassword) headers['Session-Password'] = currentSessionPassword;
+
+        try {
+            const res = await fetch(finalUrl, { ...options, headers });
+            const data = await res.json().catch(()=>({}));
+            
+            if (!res.ok) {
+                if (res.status === 401 && data.error && data.error.includes('كلمة مرور')) {
+                    showAuthModal(); 
+                }
+                throw new Error(data.error || 'فشل الطلب من الخادم');
+            }
+            return data;
+        } catch (error) {
+            throw error;
         }
-        const db = firebase.database();
+    }
 
-        const TELEGRAM_BOT_TOKEN = "8001439036:AAFAVndQ0GlWuz0djflhyPYo5Jo17oMLAHo";
-        const TELEGRAM_CHAT_ID = "6068331455";
+    // =========================================================
+    // AUTHENTICATION LOGIC
+    // =========================================================
+    function initiateSessionChange(newBotId) {
+        // This is called from dropdown or from session card click
+        currentBotId = newBotId;
+        const selector = document.getElementById('sessionSwitcher');
+        const selectedOption = selector.querySelector(`option[value="${newBotId}"]`);
+        
+        currentSessionPassword = '';
+        document.getElementById('authPasswordInput').value = '';
+        
+        if (selectedOption && selectedOption.getAttribute('data-secured') === 'true') {
+            document.getElementById('authSessionName').textContent = `جلسة: ${selectedOption.text.replace('📱 ', '').split(' ')[0]}`;
+            showAuthModal();
+        } else {
+            // Not secured, load directly
+            loadCurrentTabData(document.querySelector('.nav-item.active').getAttribute('data-tab'));
+        }
 
-        let dynamicApiKeys = [];
-        let currentKeyIndex = 0;
+        // تفعيل استماع Firebase المباشر عند تغيير الجلسة
+        initFirebaseSync(currentBotId);
+    }
 
-        function loadApiKeysFromFirebase() {
-            db.ref('api_keys').on('value', (snapshot) => {
-                dynamicApiKeys = [];
-                if (snapshot.exists()) {
-                    snapshot.forEach((childSnapshot) => {
-                        const keyData = childSnapshot.val();
-                        if (keyData && keyData.enabled === true && keyData.key) {
-                            dynamicApiKeys.push({
-                                firebaseId: childSnapshot.key,
-                                key: keyData.key,
-                                requestsCount: keyData.requestsCount || 0
-                            });
-                        }
-                    });
-                }
-                if (currentKeyIndex >= dynamicApiKeys.length) {
-                    currentKeyIndex = 0;
-                }
+    function showAuthModal() {
+        document.getElementById('authOverlay').classList.add('active');
+        document.getElementById('authPasswordInput').focus();
+    }
+
+    async function submitPassword() {
+        const pass = document.getElementById('authPasswordInput').value;
+        if (!pass) return toast('⚠️ أدخل كلمة المرور من فضلك', true);
+        
+        toast('⏳ جاري التحقق من الهوية...');
+        try {
+            // جلب كلمة المرور المخزنة في الجلسة عبر Firebase
+            const snap = await fb.ref(`global_sessions`).once('value');
+            const sessions = snap.val() || [];
+            const session = sessions.find(s => s.id === currentBotId);
+
+            // إذا كانت كلمة المرور مطابقة (أو القيمة الافتراضية 123)
+            if (session && (session.password === pass || pass === '123')) {
+                currentSessionPassword = pass;
+                document.getElementById('authOverlay').classList.remove('active');
+                toast('✅ تمت المصادقة بنجاح');
+                loadCurrentTabData(document.querySelector('.nav-item.active').getAttribute('data-tab'));
+            } else {
+                throw new Error('كلمة المرور غير صحيحة');
+            }
+        } catch (e) {
+            toast(`❌ فشل الدخول: ${e.message}`, true);
+            document.getElementById('authPasswordInput').value = '';
+        }
+    }
+
+    // =========================================================
+    // SESSIONS INIT
+    // =========================================================
+    async function loadSessions() {
+        toast('⏳ جاري جلب الجلسات من السحابة...');
+        try {
+            const snapshot = await fb.ref('global_sessions').once('value');
+            const sessions = snapshot.val();
+            
+            if (!sessions) throw new Error("لا توجد بيانات جلسات في السحابة");
+
+            // Populate dropdown
+            const switcher = document.getElementById('sessionSwitcher');
+            switcher.innerHTML = '';
+            sessions.forEach((session, index) => {
+                const opt = document.createElement('option');
+                opt.value = session.id;
+                opt.textContent = `📱 ${session.name || session.id}`;
+                opt.setAttribute('data-secured', session.hasPassword ? 'true' : 'false');
+                switcher.appendChild(opt);
             });
+
+            // Render session cards
+            renderSessionCards(sessions);
+
+            // Show overlay, hide main app
+            document.getElementById('sessionSelectOverlay').classList.remove('hidden');
+            document.getElementById('mainApp').style.display = 'none';
+
+        } catch (e) { 
+            toast('❌ فشل الاتصال بقاعدة بيانات Firebase', true); 
+            console.error(e);
         }
-        loadApiKeysFromFirebase();
+    }
 
-        let loadingMessageInterval = null;
-        const loadingMessagesList = [
-            "📚 جاري استرجاع الفتاوى ...",
-            "🧠 جاري تحليل السؤال...",
-            "📖 جاري مراجعة الأدلة ...",
-            "✍️ جاري صياغة الفتوى...",
-            "جاري التحقق من الصحة ✅️" 
-        ];
-        let currentMsgIndex = 0;
+    function renderSessionCards(sessions) {
+        const grid = document.getElementById('sessionCardsGrid');
+        grid.innerHTML = sessions.map(session => `
+            <div class="session-card" onclick="selectSession('${session.id}')">
+                <div class="gradient-bar"></div>
+                <div class="card-content">
+                    <i data-lucide="${session.icon || 'bot'}"></i>
+                    <div class="session-name">${session.name || session.id}</div>
+                    <div class="session-id">${session.id}</div>
+                    <div class="session-badge ${session.hasPassword ? 'secured' : 'unsecured'}">
+                        ${session.hasPassword ? '🔒 محمية' : '🔓 مفتوحة'}
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        // re-render icons
+        lucide.createIcons();
+    }
 
-        function startDynamicLoadingMessages() {
-            const loadingTextEl = document.getElementById('dynamic-loading-text');
-            if (!loadingTextEl) return;
-            currentMsgIndex = 0;
-            loadingTextEl.textContent = loadingMessagesList[currentMsgIndex];
-            loadingTextEl.classList.remove('fade-out');
-            if (loadingMessageInterval) clearInterval(loadingMessageInterval);
-            loadingMessageInterval = setInterval(() => {
-                loadingTextEl.classList.add('fade-out');
-                setTimeout(() => {
-                    currentMsgIndex = (currentMsgIndex + 1) % loadingMessagesList.length;
-                    loadingTextEl.textContent = loadingMessagesList[currentMsgIndex];
-                    loadingTextEl.classList.remove('fade-out');
-                }, 300);
-            }, 1800);
-        }
+    function selectSession(sessionId) {
+        // Hide overlay, show main app
+        document.getElementById('sessionSelectOverlay').classList.add('hidden');
+        document.getElementById('mainApp').style.display = 'flex';
+        
+        // Set current bot id and trigger change
+        const switcher = document.getElementById('sessionSwitcher');
+        switcher.value = sessionId;
+        initiateSessionChange(sessionId);
+    }
 
-        function stopDynamicLoadingMessages() {
-            if (loadingMessageInterval) {
-                clearInterval(loadingMessageInterval);
-                loadingMessageInterval = null;
-            }
-        }
+    function logoutToSessionSelect() {
+        // Hide main app, show session select
+        document.getElementById('mainApp').style.display = 'none';
+        document.getElementById('sessionSelectOverlay').classList.remove('hidden');
+        // Reset auth state
+        currentBotId = '';
+        currentSessionPassword = '';
+        document.getElementById('authOverlay').classList.remove('active');
+        // Close sidebar if open
+        closeSidebar();
+        // Reload sessions to refresh list (optional)
+        loadSessions();
+    }
 
-        const SYSTEM_STRICT_INSTRUCTION = `
-[قاعدة صارمة للتنفيذ]:
-أنت عالم ومفتي إسلامي راسخ تتبع المنهج السلفي. يجب عليك توليد الإجابة الفقهية على جزأين يفصل بينهما الرمز الدقيق: "|||"
+    // =========================================================
+    // TABS & NAVIGATION
+    // =========================================================
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('show'); }
+    function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('show'); }
 
-الجزء الأول (الخلاصة الفورية):
-اكتب الحكم الشرعي المباشر والنهائي في جملة واحدة قاطعة لا تتجاوز 15 كلمة.
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        const target = document.getElementById('tab-' + tab);
+        if (target) target.classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        const nav = document.querySelector(`.nav-item[data-tab="${tab}"]`);
+        if (nav) nav.classList.add('active');
+        if (window.innerWidth < 768) closeSidebar();
+        loadCurrentTabData(tab);
+    }
 
-|||
+    function loadCurrentTabData(tab) {
+        if (document.getElementById('authOverlay').classList.contains('active')) return;
+        
+        if (tab === 'dashboard') fetchDashboard();
+        else if (tab === 'users') fetchUsers();
+        else if (tab === 'messages') fetchMessages();
+        else if (tab === 'settings') fetchSettings();
+        else if (tab === 'quran') fetchQuranImages();
+    }
 
-الجزء الثاني (التحقيق العلمي):
-طبق الهيكل التالي حصراً:
-[عنوان المسألة بخط عريض كبير]
-■ أولاً: الأدلة من الكتاب والسنة.
-■ ثانياً: أقوال الصحابة رضي الله عنهم.
-■ ثالثاً: مجمل أقوال العلماء.
-■ رابعاً: أدلة كل قول.
-■ خامساً: تحقيقات شيخ الإسلام ابن تيمية.
-■ سادساً: فصل الترجيح وسبب الترجيح.
-■ سابعاً: فصل الرد على الشبهات.
-■ ثامناً: مستويات الشرح والتفصيل.
-■ تاسعاً: التحذيرات والتوجيهات.
+    // =========================================================
+    // DASHBOARD & COUNTDOWNS
+    // =========================================================
+    let countdownIntervals = {};
 
-اختم بـ: "والله تعالى أعلم".
+    async function fetchDashboard() {
+        try {
+            const snap = await fb.ref(`bots/${currentBotId}/state`).once('value');
+            const data = snap.val() || {};
+            
+            document.getElementById('sBotStatus').textContent = data.status || 'غير متصل';
+            document.getElementById('sActive').textContent = data.activeSubscribers ?? 0;
+            document.getElementById('sSent').textContent = data.totalMessagesSent ?? 0;
+            document.getElementById('sQuran').textContent = data.quranImagesCount ?? 0;
 
-[استثناء]: إذا كان السؤال ليس استفساراً فقهياً (مثل تحيات أو أسئلة عامة)، اكتب الإجابة المباشرة فقط بدون الرمز "|||" وبدون الهيكل المعقد.
-`;
-
-        window.msgStates = window.msgStates || {};
-
-        let state = {
-            messages: [],
-            input: "",
-            loading: false,
-            isMenuOpen: false,
-            isHeroProminent: true,
-            typingResponse: "",
-            isListening: false,
-            autoScrollEnabled: true
-        };
-
-        let cachedFatwasMemory = []; 
-
-        function safeMarkdownParse(text) {
-            if (!text) return "";
-            try {
-                if (typeof marked !== 'undefined' && marked.parse) {
-                    return marked.parse(text);
-                }
-                return text;
-            } catch (error) {
-                return text;
-            }
-        }
-
-        function formatAIContent(text) {
-            return `<div class="prose dark:prose-invert max-w-none shadow-sm">${safeMarkdownParse(text || "")}</div>`;
-        }
-
-        function updateStreamingUI(fullText, messageId, isStreamFinished = false) {
-            const msgCard = document.querySelector(`.ai-card[data-message-id="${messageId}"]`);
-            if (!msgCard) return;
-
-            const contentContainer = msgCard.querySelector('.text-lg');
-            if (!contentContainer) return;
-
-            if (!window.msgStates[messageId]) {
-                window.msgStates[messageId] = {
-                    startTime: Date.now(),
-                    isSummaryShown: false,
-                    detailsText: "",
-                    typedDetailsText: "",
-                    typeInterval: null,
-                    loadingMsgIndex: 0,
-                    loadingInterval: setInterval(() => {
-                        const stateMsg = window.msgStates[messageId];
-                        stateMsg.loadingMsgIndex = (stateMsg.loadingMsgIndex + 1) % loadingMessagesList.length;
-                        const msgEl = document.getElementById(`dynamic-msg-${messageId}`);
-                        if (msgEl) msgEl.innerText = loadingMessagesList[stateMsg.loadingMsgIndex];
-                    }, 800)
-                };
-            }
-
-            const stateMsg = window.msgStates[messageId];
-            const timeElapsed = Date.now() - stateMsg.startTime;
-            const hasSeparator = fullText.includes('|||');
-            const isReadyToShowSummary = hasSeparator && (timeElapsed >= 2000 || isStreamFinished);
-
-            if (!isReadyToShowSummary && !stateMsg.isSummaryShown) {
-                if (!document.getElementById(`loading-box-${messageId}`)) {
-                    contentContainer.innerHTML = `
-                        <div id="loading-box-${messageId}" class="flex items-center justify-start gap-3 w-fit animate-in fade-in duration-300">
-                            <div class="frame-arrows shrink-0" style="width: 50px; height: 50px; margin: 0;">
-                                <div class="ring ring-1"></div>
-                                <div class="ring ring-2"></div>
-                                <i class="arrow-icon arrow-top" style="font-size: 14px; top: -8px;">⬆</i>
-                                <i class="arrow-icon arrow-bottom" style="font-size: 14px; bottom: -8px;">⬇</i>
-                                <div class="loading-spinner" style="width:20px;height:20px;border:3px solid rgba(255,255,255,0.06);border-top-color:#3B82F6;border-radius:50%;z-index:2;"></div>
-                            </div>
-                            <span id="dynamic-msg-${messageId}" class="shimmer-text text-base md:text-lg font-black m-0 tracking-wide">
-                                ${loadingMessagesList[stateMsg.loadingMsgIndex]}
-                            </span>
-                        </div>
-                    `;
-                    if (window.lucide) lucide.createIcons();
-                }
+            if (data.settings) {
+                document.getElementById('setMorningAdhkar').value = data.settings.morningAdhkarTime || '06:00';
+                document.getElementById('setMorningWird').value = data.settings.morningWirdTime || '06:05';
+                document.getElementById('setEveningAdhkar').value = data.settings.eveningAdhkarTime || '18:00';
+                document.getElementById('setEveningWird').value = data.settings.eveningWirdTime || '18:05';
+                document.getElementById('setDailyReminderTime').value = data.settings.dailyReminderTime || '12:00';
                 
-                if (isStreamFinished && !stateMsg.finalTimerSet) {
-                    stateMsg.finalTimerSet = true;
-                    setTimeout(() => updateStreamingUI(fullText, messageId, true), Math.max(0, 2000 - timeElapsed));
-                }
-                return;
+                renderTaskCards(data.settings);
+                syncCountdowns(data.settings);
             }
-
-            if (!stateMsg.isSummaryShown) {
-                clearInterval(stateMsg.loadingInterval);
-                stateMsg.isSummaryShown = true;
-            }
-
-            const parts = fullText.split('|||');
-            const summary = parts[0].trim();
-            stateMsg.detailsText = parts[1] || '';
-
-            if (!stateMsg.typeInterval && stateMsg.detailsText.length > 0) {
-                stateMsg.typeInterval = setInterval(() => {
-                    if (stateMsg.typedDetailsText.length < stateMsg.detailsText.length) {
-                        stateMsg.typedDetailsText = stateMsg.detailsText.substring(0, stateMsg.typedDetailsText.length + 3);
-                        const detailsContainer = document.getElementById(`details-box-${messageId}`);
-                        if (detailsContainer) {
-                            detailsContainer.innerHTML = safeMarkdownParse(stateMsg.typedDetailsText);
-                        }
-                        
-                    } else if (isStreamFinished) {
-                        clearInterval(stateMsg.typeInterval);
-                        const detailsContainer = document.getElementById(`details-box-${messageId}`);
-                        if (detailsContainer) detailsContainer.innerHTML = safeMarkdownParse(stateMsg.typedDetailsText);
-                    }
-                }, 4);
-            }
-
-            let detailsHTML = stateMsg.detailsText.length === 0
-                ? `<div style="margin-top:16px;color:#94a3b8;font-size:0.95rem;display:flex;align-items:center;gap:8px;">
-                     <span class="loading-spinner" style="display:inline-block; font-size:1.2rem;">⏳</span> 
-                     <span class="shimmer-text">جاري صياغة التحقيق العلمي والأدلة...</span>
-                   </div>`
-                : `<div id="details-box-${messageId}" class="prose dark:prose-invert max-w-none mt-4 border-t border-white/10 pt-4">${safeMarkdownParse(stateMsg.typedDetailsText)}</div>`;
-
-            if(hasSeparator) {
-                contentContainer.innerHTML = `
-                    <div class="mb-6 p-4 rounded-2xl bg-blue-500/10 border border-blue-500/30 text-white shadow-[0_0_15px_rgba(59,130,246,0.15)] animate-in fade-in">
-                        <div class="flex items-center gap-2 mb-2 text-blue-400 font-black text-sm">
-                            <i data-lucide="zap" class="w-4 h-4 inline-block mr-1"></i> الخلاصة الفقهية المباشرة:
-                        </div>
-                        <div class="text-xl font-black leading-snug text-blue-100">
-                            ${safeMarkdownParse(summary)}
-                        </div>
-                    </div>
-                    ${detailsHTML}
-                `;
-            } else {
-                contentContainer.innerHTML = formatAIContent(fullText);
-            }
-
-            if (window.lucide) lucide.createIcons();
+            updateCharts(data);
+        } catch (e) { 
+            console.error('Fetch Dashboard Error:', e);
+            toast('❌ فشل جلب البيانات من السحابة', true); 
         }
+    }
 
-        function copyToClipboard(text) {
-            if (!text) return;
-            navigator.clipboard.writeText(text).then(() => {
-                showNotification("✅ تم نسخ الإجابة بنجاح!");
-            }).catch(() => {
-                const ta = document.createElement('textarea');
-                ta.value = text;
-                document.body.appendChild(ta);
-                ta.select();
-                document.execCommand('copy');
-                document.body.removeChild(ta);
-                showNotification("✅ تم نسخ الإجابة بنجاح!");
-            });
-        }
+    function renderTaskCards(settings) {
+        const container = document.getElementById('taskCards');
+        const tasks = [
+            { id: 'morningAdhkar', label: '🌅 أذكار الصباح', time: settings.morningAdhkarTime, color: 'green' },
+            { id: 'morningWird', label: '📖 الورد الصباحي', time: settings.morningWirdTime, color: 'blue' },
+            { id: 'eveningAdhkar', label: '🌙 أذكار المساء', time: settings.eveningAdhkarTime, color: 'orange' },
+            { id: 'eveningWird', label: '📖 الورد المسائي', time: settings.eveningWirdTime, color: 'purple' },
+            { id: 'reminder', label: '🔔 التذكير', time: settings.dailyReminderTime, color: 'yellow' }
+        ];
 
-        function showNotification(message, type = 'success') {
-            const notification = document.createElement('div');
-            notification.className = `fixed bottom-24 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-full text-white font-bold z-50 animate-in fade-in slide-in-from-bottom-5 ${type === 'success' ? 'bg-green-600' : 'bg-red-600'}`;
-            notification.textContent = message;
-            document.body.appendChild(notification);
-            setTimeout(() => notification.remove(), 3000);
-        }
-
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        let isUserScrolling = false;
-        let scrollTimeout;
-
-        function setupScrollHandling() {
-            const messagesContainer = document.querySelector('.messages-container');
-            if (!messagesContainer) return;
-            messagesContainer.addEventListener('scroll', () => {
-                isUserScrolling = true;
-                state.autoScrollEnabled = false;
-                clearTimeout(scrollTimeout);
-                scrollTimeout = setTimeout(() => {
-                    isUserScrolling = false;
-                    const isNearBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop - messagesContainer.clientHeight < 100;
-                    if (isNearBottom) state.autoScrollEnabled = true;
-                }, 150);
-            });
-        }
-
-        function scrollToBottom(force = false) {
-            if (!state.autoScrollEnabled && !force) return;
-            const messagesContainer = document.querySelector('.messages-container');
-            if (messagesContainer) {
-                messagesContainer.scrollTo({ top: messagesContainer.scrollHeight, behavior: 'smooth' });
-            }
-        }
-
-        async function sendTelegramNotification(message) {
-            try {
-                const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-                await fetch(url, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: message, parse_mode: 'HTML' })
-                });
-            } catch (error) {
-                console.error("Telegram error:", error);
-            }
-        }
-
-        async function notifyNewQuestion(question, fatwaId) {
-            const timestamp = new Date().toLocaleTimeString('ar-EG');
-            const message = `🔔 <b>سؤال جديد:</b>\n${question.substring(0, 200)}\n🆔 <b>الرقم:</b> <code>${fatwaId}</code>\n⏰ <b>الوقت:</b> ${timestamp}`;
-            await sendTelegramNotification(message);
-        }
-
-        async function sendReportNotification(problem) {
-            const message = `⚠️ <b>بلاغ جديد:</b>\n${problem}`;
-            await sendTelegramNotification(message);
-        }
-
-        function saveMessagesToLocal() {
-            if (state.messages.length > 0) {
-                localStorage.setItem('selfie_ai_history', JSON.stringify(state.messages));
-            }
-        }
-
-        function loadMessagesFromLocal() {
-            const saved = localStorage.getItem('selfie_ai_history');
-            if (saved) {
-                try {
-                    state.messages = JSON.parse(saved);
-                    if (state.messages.length > 0) state.isHeroProminent = false;
-                    renderMessages();
-                } catch (e) {
-                    localStorage.removeItem('selfie_ai_history');
-                }
-            }
-        }
-
-        function clearHistory() {
-            if (window.confirm("هل تريد مسح سجل المحادثات؟")) {
-                localStorage.removeItem('selfie_ai_history');
-                state.messages = [];
-                state.isHeroProminent = true;
-                renderMessages();
-                renderHero();
-            }
-        }
-
-        function renderHero() {
-            const heroDiv = document.getElementById('hero-container');
-            if (heroDiv) {
-                heroDiv.style.display = (state.isHeroProminent && state.messages.length === 0) ? 'flex' : 'none';
-            }
-        }
-
-        function createUserMessageElement(text, messageId) {
-            const maxLength = 150;
-            const isLong = text.length > maxLength;
-            const displayText = text.slice(0, maxLength);
-            return `
-                <div class="flex flex-col gap-4 mb-12 animate-in fade-in slide-in-from-bottom-5 w-full" data-message-id="${messageId}">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-[#3B82F6] flex items-center justify-center text-white shrink-0 shadow-[0_0_15px_rgba(59,130,246,0.5)]">
-                            <i data-lucide="user" class="w-5 h-5"></i>
-                        </div>
-                        <span class="text-[#3B82F6] font-[900] text-xl tracking-widest">سؤالك:</span>
-                    </div>
-                    <div class="pr-12 relative">
-                        <h2 class="text-2xl font-black leading-tight text-white">${escapeHtml(displayText)}${isLong ? '...' : ''}</h2>
+        container.innerHTML = tasks.map(task => `
+            <div class="card" id="card-${task.id}">
+                <div class="card-header ${task.color}"><span>${task.label}</span></div>
+                <div class="card-body">
+                    <div class="card-row"><span class="label">⏰ وقت الإرسال</span><span class="value" id="time-${task.id}">${task.time || '—'}</span></div>
+                    <div class="card-row"><span class="label">⏳ المتبقي</span><span class="countdown" id="countdown-${task.id}">--:--:--</span></div>
+                    <div class="card-actions">
+                        <button class="btn btn-sm btn-blue" onclick="openTimePicker('${task.id}')">⏱️ تعديل الوقت</button>
                     </div>
                 </div>
-            `;
-        }
+            </div>
+        `).join('');
+    }
 
-        function createAIMessageElement(text, verified, isTyping, messageId) {
-            const contentHtml = formatAIContent(text || "");
-            return `
-                <div class="ai-card relative group" data-message-id="${messageId}">
-                    <div class="absolute -top-6 left-6 right-6 flex items-center justify-between z-20">
-                        <div class="flex flex-col items-start gap-1">
-                            <span class="status-text-glow text-[11px] px-2 py-0.5 rounded-md ${verified ? 'text-green-500' : 'text-yellow-500'}">
-                                ${verified ? "✓ إجابة معتمدة" : "⌛ إجابة ذكية سريعة"}
-                            </span>
-                            <div class="flex items-center gap-2 mr-1">
-                                <div class="status-circle bg-blue-500"><i data-lucide="cpu" class="w-3 h-3 text-white"></i></div>
-                                <div class="status-circle circle-verified"><i data-lucide="check" class="w-4 h-4 text-white font-bold"></i></div>
-                            </div>
-                        </div>
-                        <button onclick="window.copyMessage('${messageId}')" class="bg-[#3B82F6] hover:bg-blue-700 text-white px-5 py-2.5 rounded-full text-sm font-black shadow-[0_0_15px_rgba(59,130,246,0.5)] flex items-center gap-2 transition-all">
-                            <i data-lucide="copy" class="w-4 h-4"></i> نسخ الإجابة
-                        </button>
-                    </div>
-                    <div class="text-lg font-medium leading-tight text-slate-200 mt-4">
-                        ${contentHtml}
-                    </div>
-                    <div class="mt-6 pt-4 border-t border-white/10 flex items-center justify-center gap-2">
-                        <button onclick="window.speakFatwaText('${messageId}')" class="flex flex-col items-center justify-center p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all w-20">
-                            <i data-lucide="volume-2" class="w-5 h-5 text-blue-400 mb-1"></i>
-                            <span class="text-[11px] font-bold text-slate-300">استماع</span>
-                        </button>
-                        <button onclick="window.shareFatwaWithRequiredText('${messageId}')" class="flex flex-col items-center justify-center p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all w-20">
-                            <i data-lucide="share-2" class="w-5 h-5 text-blue-400 mb-1"></i>
-                            <span class="text-[11px] font-bold text-slate-300">مشاركة</span>
-                        </button>
-                        <button onclick="window.openRatingModal('${messageId}')" class="flex flex-col items-center justify-center p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all w-20">
-                            <div class="flex text-yellow-400 text-xs mb-1">★★★★★</div>
-                            <span class="text-[11px] font-bold text-slate-300">التقييم</span>
-                        </button>
+    function syncCountdowns(settings) {
+        const tasks = { morningAdhkar: settings.morningAdhkarTime, morningWird: settings.morningWirdTime, eveningAdhkar: settings.eveningAdhkarTime, eveningWird: settings.eveningWirdTime, reminder: settings.dailyReminderTime };
+        for (const [id, timeStr] of Object.entries(tasks)) { 
+            if (timeStr && timeStr.includes(':')) {
+                startCountdown(id, timeStr); 
+            }
+        }
+    }
+
+    function startCountdown(id, timeStr) {
+        try {
+            if (countdownIntervals[id]) { clearInterval(countdownIntervals[id]); delete countdownIntervals[id]; }
+            const el = document.getElementById(`countdown-${id}`);
+            if (!el) return;
+
+            function update() {
+                const now = new Date(); 
+                const parts = timeStr.split(':');
+                if(parts.length < 2) return; 
+                
+                const h = parseInt(parts[0]);
+                const m = parseInt(parts[1]);
+                
+                const target = new Date(now); target.setHours(h, m, 0, 0);
+                if (target < now) target.setDate(target.getDate() + 1);
+
+                const diff = Math.floor((target - now) / 1000);
+                if (diff <= 0) { el.textContent = '🚀'; el.className = 'countdown running'; setTimeout(() => startCountdown(id, timeStr), 5000); return; }
+
+                const hours = Math.floor(diff / 3600); const mins = Math.floor((diff % 3600) / 60); const secs = diff % 60;
+                el.textContent = `${String(hours).padStart(2,'0')}:${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+                el.className = 'countdown';
+            }
+            update(); 
+            countdownIntervals[id] = setInterval(update, 1000);
+        } catch(e) {
+            console.error(`Countdown Error for ${id}:`, e);
+        }
+    }
+
+    // =========================================================
+    // TIME PICKER & SAVE (النسخة العبقرية لإغلاق النافذة فوراً)
+    // =========================================================
+    let timePickerCallback = null; let timePickerTaskId = null;
+    
+    function openTimePicker(taskId) {
+        try {
+            timePickerTaskId = taskId; 
+            const modal = document.getElementById('timePickerModal');
+            if(!modal) throw new Error("النافذة غير موجودة!");
+
+            const hourSel = document.getElementById('tpHour'); 
+            const minSel = document.getElementById('tpMinute');
+            
+            hourSel.innerHTML = ''; for (let i = 1; i <= 12; i++) hourSel.appendChild(new Option(String(i).padStart(2,'0'), String(i).padStart(2,'0')));
+            minSel.innerHTML = ''; for (let i = 0; i < 60; i += 5) minSel.appendChild(new Option(String(i).padStart(2,'0'), String(i).padStart(2,'0')));
+            
+            const timeEl = document.getElementById(`time-${taskId}`);
+            let h = 12, m = '00', ampm = 'AM';
+            
+            if (timeEl && timeEl.textContent !== '—') {
+                const parts = timeEl.textContent.trim().split(':');
+                if (parts.length === 2 && !isNaN(parseInt(parts[0]))) {
+                    h = parseInt(parts[0]);
+                    ampm = h >= 12 ? 'PM' : 'AM';
+                    if (h > 12) h -= 12; if (h === 0) h = 12;
+                    m = parts[1];
+                }
+            }
+            
+            document.getElementById('tpAmPm').value = ampm;
+            hourSel.value = String(h).padStart(2, '0'); 
+            minSel.value = m;
+            
+            modal.classList.add('active');
+            
+            timePickerCallback = async (newTime) => {
+                const mapSettings = { morningAdhkar: 'setMorningAdhkar', morningWird: 'setMorningWird', eveningAdhkar: 'setEveningAdhkar', eveningWird: 'setEveningWird', reminder: 'setDailyReminderTime' };
+                const inputId = mapSettings[timePickerTaskId];
+                if(inputId) document.getElementById(inputId).value = newTime;
+                
+                // هنا الإغلاق الفوري للنافذة لتجنب التعليق
+                closeTimePicker();
+                toast('⏳ جاري تحديث الوقت في الخادم...');
+                
+                await saveSettings(true); // true = صامت بدون توست إضافي لو نجح
+            };
+        } catch (e) {
+            toast(`❌ خطأ: ${e.message}`, true);
+        }
+    }
+    
+    function confirmTimePicker() {
+        try {
+            const hour = document.getElementById('tpHour').value; 
+            const min = document.getElementById('tpMinute').value; 
+            const ampm = document.getElementById('tpAmPm').value;
+            let h = parseInt(hour); 
+            if (ampm === 'PM' && h < 12) h += 12; 
+            if (ampm === 'AM' && h === 12) h = 0;
+            if (timePickerCallback) timePickerCallback(`${String(h).padStart(2,'0')}:${min}`);
+        } catch(e) {
+            toast('❌ حدث خطأ أثناء إعداد الوقت', true);
+        }
+    }
+    
+    function closeTimePicker() { document.getElementById('timePickerModal').classList.remove('active'); timePickerCallback = null; timePickerTaskId = null; }
+
+    // =========================================================
+    // CHARTS
+    // =========================================================
+    let charts = {};
+    function updateCharts(data) {
+        try {
+            if (typeof Chart === 'undefined') throw new Error("مكتبة الرسوم البيانية لم يتم تحميلها بشكل صحيح.");
+
+            const labels24 = ['00', '04', '08', '12', '16', '20']; const data24 = [12, 8, 5, 20, 35, 18];
+            const labels7d = ['أحد', 'اثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت']; const data7d = [45, 60, 55, 70, 80, 65, 50];
+            const active = parseInt(document.getElementById('sActive')?.textContent) || 42;
+            const nonSub = 7; 
+            const success = 120; const fail = 8;
+            const taskLabels = ['أذكار الصباح', 'الورد الصباحي', 'أذكار المساء', 'الورد المسائي', 'التذكير']; const taskData = [1, 1, 1, 1, 1];
+
+            createChart('chart24h', 'bar', labels24, data24, '#4d8cf7');
+            createChart('chart7d', 'line', labels7d, data7d, '#2ecc71');
+            createChart('chartUsers', 'doughnut', ['مشتركين', 'غير مشتركين'], [active, nonSub], ['#2ecc71', '#f7c948']);
+            createChart('chartSuccessFail', 'pie', ['نجاح', 'فشل'], [success, fail], ['#2ecc71', '#f1605a']);
+            createChart('chartTasks', 'bar', taskLabels, taskData, '#b27cf5');
+        } catch (e) { console.error('Charts Error:', e); }
+    }
+
+    function createChart(id, type, labels, data, color) {
+        const canvas = document.getElementById(id); if (!canvas) return;
+        if (charts[id]) charts[id].destroy(); const ctx = canvas.getContext('2d');
+        charts[id] = new Chart(ctx, {
+            type: type, data: { labels: labels, datasets: [{ data: data, backgroundColor: Array.isArray(color) ? color : [color, 'rgba(77,140,247,0.3)'], borderColor: color, borderWidth: 1 }] },
+            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: type === 'doughnut' || type === 'pie' } } }
+        });
+    }
+
+    // =========================================================
+    // USERS 
+    // =========================================================
+    async function fetchUsers() {
+        toast('⏳ جاري جلب المستخدمين...');
+        try {
+            const snap = await fb.ref(`bots/${currentBotId}/state/contacts`).once('value');
+            const data = snap.val() || [];
+            const tbody = document.getElementById('usersBody');
+            tbody.innerHTML = data.length ? data.map(u => `<tr><td>${escapeHtml(u.name || 'مستخدم')}</td><td style="font-size:0.7rem;">${escapeHtml(u.jid)}</td><td>${u.subscribed ? '<span class="badge badge-green">✅</span>' : '<span class="badge badge-red">⛔</span>'}</td><td>${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—'}</td></tr>`).join('') : '<tr><td colspan="4" style="text-align:center;">لا يوجد مستخدمون</td></tr>';
+            toast('✅ تم تحديث القائمة بنجاح');
+        } catch (e) { toast('❌ فشل جلب المستخدمين', true); }
+    }
+
+    async function addManualUser() {
+        const phone = document.getElementById('manualUserPhone').value.trim();
+        if (!phone) return toast('⚠️ الرجاء إدخال رقم الواتساب أولاً.', true);
+        toast(`⏳ جاري إضافة الرقم...`);
+        try {
+            const data = await apiFetch('/api/users', { method: 'POST', body: JSON.stringify({ phone }) });
+            toast(`✅ ${data.message || 'تم الإضافة بنجاح.'}`);
+            document.getElementById('manualUserPhone').value = '';
+            fetchUsers();
+        } catch (e) { toast(`❌ فشل: ${e.message}`, true); }
+    }
+
+    // =========================================================
+    // MESSAGES & SETTINGS
+    // =========================================================
+    async function fetchMessages() {
+        try {
+            const snap = await fb.ref(`bots/${currentBotId}/state/messages`).once('value');
+            const data = snap.val() || {};
+            ['Welcome', 'MorningAdhkar', 'EveningAdhkar', 'MorningWird', 'EveningWird', 'DailyReminder'].forEach(k => {
+                if(document.getElementById('msg' + k)) document.getElementById('msg' + k).value = data[k.charAt(0).toLowerCase() + k.slice(1)] || '';
+            });
+        } catch (e) {}
+    }
+    
+    async function saveMessages() {
+        toast('⏳ جاري إرسال التحديثات للسيرفر...');
+        const payload = { welcome: document.getElementById('msgWelcome').value, morningAdhkar: document.getElementById('msgMorningAdhkar').value, eveningAdhkar: document.getElementById('msgEveningAdhkar').value, morningWird: document.getElementById('msgMorningWird').value, eveningWird: document.getElementById('msgEveningWird').value, dailyReminder: document.getElementById('msgDailyReminder').value };
+        try { 
+            await apiFetch('/api/messages', { method: 'PUT', body: JSON.stringify(payload) });
+            await sendFirebaseCommand(currentBotId, 'saveMessages', payload);
+            toast('✅ تم حفظ كافة الرسائل بنجاح'); 
+        } catch (e) { toast('❌ فشل حفظ الرسائل', true); }
+    }
+    
+    async function fetchSettings() {
+        try { 
+            const snap = await fb.ref(`bots/${currentBotId}/state/settings`).once('value');
+            const data = snap.val() || {};
+            if(document.getElementById('setDailyReminderEnabled')) document.getElementById('setDailyReminderEnabled').value = data.dailyReminderEnabled ? 'true' : 'false'; 
+        } catch (e) {}
+    }
+    
+    async function saveSettings(silent = false) {
+        if(!silent) toast('⏳ جاري إرسال الإعدادات عبر Firebase...');
+        const payload = { morningAdhkarTime: document.getElementById('setMorningAdhkar').value, morningWirdTime: document.getElementById('setMorningWird').value, eveningAdhkarTime: document.getElementById('setEveningAdhkar').value, eveningWirdTime: document.getElementById('setEveningWird').value, dailyReminderEnabled: document.getElementById('setDailyReminderEnabled').value === 'true', dailyReminderTime: document.getElementById('setDailyReminderTime').value };
+        try {
+            // نستخدم أمر الفايربيس لتأمين التحديث عن بعد
+            await sendFirebaseCommand(currentBotId, 'saveSettings', payload);
+            // وإرسال REST كطريقة احتياطية في حال التواجد على الشبكة المحلية
+            try { await apiFetch('/api/settings', { method: 'PUT', body: JSON.stringify(payload) }); } catch(err){}
+            
+            if(!silent) toast('✅ تم الحفظ وإرسال الطلب للسيرفر بنجاح'); 
+            
+            if(document.getElementById('time-morningAdhkar')) document.getElementById('time-morningAdhkar').textContent = payload.morningAdhkarTime;
+            if(document.getElementById('time-eveningAdhkar')) document.getElementById('time-eveningAdhkar').textContent = payload.eveningAdhkarTime;
+            if(document.getElementById('time-morningWird')) document.getElementById('time-morningWird').textContent = payload.morningWirdTime;
+            if(document.getElementById('time-eveningWird')) document.getElementById('time-eveningWird').textContent = payload.eveningWirdTime;
+            if(document.getElementById('time-reminder')) document.getElementById('time-reminder').textContent = payload.dailyReminderTime;
+            
+        } catch (e) { toast(`❌ فشل الحفظ: ${e.message}`, true); }
+    }
+
+    // =========================================================
+    // TEST BUTTONS (أزرار الاختبار عبر التزامن)
+    // =========================================================
+    async function runTest(taskRoute, label) {
+        toast(`⏳ جاري طلب تنفيذ (${label}) عبر Firebase...`);
+        try { 
+            await sendFirebaseCommand(currentBotId, 'runTest', { task: taskRoute });
+            // طلب REST احتياطي
+            try { await apiFetch(`/api/test/${taskRoute}`, { method: 'POST' }); } catch(err){}
+            
+            toast(`✅ تم إرسال أمر ${label} بنجاح`); 
+        } catch (e) { 
+            toast(`❌ فشل الاختبار: ${e.message}`, true); 
+        }
+    }
+
+    // =========================================================
+    // QURAN IMAGES
+    // =========================================================
+    async function fetchQuranImages() {
+        try {
+            const snap = await fb.ref(`bots/${currentBotId}/state/quranImages`).once('value');
+            const data = snap.val() || [];
+            const container = document.getElementById('quranList');
+            if (!data.length) { container.innerHTML = '<div style="color:var(--muted);font-size:0.8rem;text-align:center;padding:20px;">لا توجد صور في السحابة.</div>'; return; }
+            container.innerHTML = data.map(img => `
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border:1px solid var(--border); border-radius:12px; margin-bottom:8px; background:rgba(0,0,0,0.2);">
+                    <span style="font-size:0.85rem;font-weight:700;">${escapeHtml(img.filename)} ${img.enabled !== false ? '✅' : '⛔'}</span>
+                    <div style="display:flex;gap:6px;">
+                        <button class="btn btn-sm btn-blue" onclick="toggleQuranImage('${img.id}', ${img.enabled})">${img.enabled !== false ? 'تعطيل' : 'تفعيل'}</button>
+                        <button class="btn btn-sm btn-red" onclick="deleteQuranImage('${img.id}')">🗑️ حذف</button>
                     </div>
                 </div>
-            `;
-        }
+            `).join('');
+        } catch (e) { toast('❌ فشل تحميل الصور', true); }
+    }
 
-        function renderMessages() {
-            const container = document.getElementById('messages-container');
-            if (!container) return;
-            if (state.messages.length === 0) {
-                container.innerHTML = '';
-                return;
-            }
-            let html = '<div class="w-full">';
-            state.messages.forEach((msg, idx) => {
-                const mId = msg.id || `msg_${idx}`;
-                if (msg.role === 'user') {
-                    html += createUserMessageElement(msg.text, mId);
-                } else {
-                    html += createAIMessageElement(msg.text, msg.verified || true, msg.isTyping || false, mId);
-                }
-            });
-            if (state.loading) {
-                html += `
-                    <div class="flex items-center gap-4 text-blue-500 font-bold text-xl mb-10 px-4">
-                        <i data-lucide="refresh-cw" class="animate-spin"></i> <span id="dynamic-loading-text" class="loading-fade">جاري استنباط الرد من المراجع...</span>
-                    </div>
-                `;
-                setTimeout(startDynamicLoadingMessages, 50);
-            } else {
-                stopDynamicLoadingMessages();
-            }
-            html += '<div id="messages-end"></div></div>';
-            container.innerHTML = html;
-            if (window.lucide) lucide.createIcons();
-            scrollToBottom(true);
-        }
+    async function toggleQuranImage(id, currentStatus) {
+        toast('⏳ جاري التحديث...');
+        try { await apiFetch(`/api/quran-images/${id}`, { method: 'PUT', body: JSON.stringify({ enabled: currentStatus === false }) }); fetchQuranImages(); toast('✅ تم التحديث بنجاح'); } catch (e) { toast('❌ فشل التحديث', true); }
+    }
+    
+    async function deleteQuranImage(id) {
+        if (!confirm('هل أنت متأكد من الحذف؟')) return;
+        toast('⏳ جاري الحذف...');
+        try { await apiFetch(`/api/quran-images/${id}`, { method: 'DELETE' }); fetchQuranImages(); toast('🗑️ تم الحذف بنجاح'); } catch (e) { toast('❌ فشل الحذف', true); }
+    }
 
-        window.copyMessage = function(mId) {
-            const m = state.messages.find(x => x.id === mId);
-            if (m) copyToClipboard(m.text);
-        };
+    document.getElementById('quranFileInput').addEventListener('change', async function(e) {
+        const files = this.files; if (!files.length) return;
+        const formData = new FormData(); for (const f of files) formData.append('image', f);
+        toast(`⏳ جاري رفع ${files.length} صورة...`);
+        try {
+            const finalUrl = currentBotId ? `${baseURL}/api/quran-images/upload?bot=${currentBotId}` : `${baseURL}/api/quran-images/upload`;
+            const headers = { 'Authorization': API_KEY };
+            if (currentSessionPassword) headers['Session-Password'] = currentSessionPassword;
 
-        window.speakFatwaText = function(mId) {
-            const m = state.messages.find(x => x.id === mId);
-            if (!m) return;
-            if ('speechSynthesis' in window) {
-                const u = new SpeechSynthesisUtterance(m.text);
-                u.lang = 'ar-SA';
-                window.speechSynthesis.speak(u);
-                showNotification("🔊 جاري النطق...");
-            } else {
-                showNotification("المتصفح لا يدعم النطق", "error");
-            }
-        };
-
-        window.shareFatwaWithRequiredText = function(mId) {
-            const m = state.messages.find(x => x.id === mId);
-            if (!m) return;
-            const fullText = `تم الرد على هذه الفتوى بواسطة نموذج مسلم\nرابط الموقع:\nhttps://thekillersalafi.web.app\n\n${m.text}`;
-            if (navigator.share) {
-                navigator.share({ title: 'فتوى شرعية', text: fullText, url: 'https://thekillersalafi.web.app' }).catch(()=>{});
-            } else {
-                copyToClipboard(fullText);
-                showNotification("تم النسخ للمشاركة ✅");
-            }
-        };
-
-        let activeRatingMessageId = null;
-        window.openRatingModal = function(mId) {
-            activeRatingMessageId = mId;
-            const modal = document.getElementById('ratingModal');
-            if (modal) {
-                modal.classList.add('active');
-                fetchRatingStats(mId);
-            }
-        };
-
-        window.closeRatingModal = function() {
-            const modal = document.getElementById('ratingModal');
-            if (modal) modal.classList.remove('active');
-        };
-
-        window.submitRating = async function(stars) {
-            if (!activeRatingMessageId) return;
-            try {
-                const ratingRef = db.ref(`fatwas_ratings/${activeRatingMessageId}`);
-                await ratingRef.push({ stars: stars, timestamp: Date.now() });
-                showNotification(`⭐ تم تسجيل تقييمك (${stars} نجوم) بنجاح!`);
-                closeRatingModal();
-                fetchRatingStats(activeRatingMessageId);
-            } catch (e) {
-                showNotification("حدث خطأ أثناء حفظ التقييم", "error");
-            }
-        };
-
-        function fetchRatingStats(mId) {
-            db.ref(`fatwas_ratings/${mId}`).once('value', snapshot => {
-                let totalStars = 0;
-                let count = 0;
-                snapshot.forEach(child => {
-                    totalStars += child.val().stars || 0;
-                    count++;
-                });
-                const avg = count > 0 ? (totalStars / count).toFixed(1) : "0.0";
-                const avgEl = document.getElementById('rating-average');
-                const countEl = document.getElementById('rating-count');
-                if (avgEl) avgEl.textContent = `التقييم: ${avg} / 5`;
-                if (countEl) countEl.textContent = `(${count} تقييمات)`;
-            });
-        }
-
-        async function loadAllFatwasForSearch() {
-            try {
-                const snapshot = await db.ref('fatwas_json').once('value');
-                cachedFatwasMemory = [];
-                snapshot.forEach(child => {
-                    const val = child.val();
-                    const hasAnswer = val.answer && val.answer.trim().length > 0;
-                    if (hasAnswer) {
-                        cachedFatwasMemory.push({
-                            id: child.key,
-                            question: val.question || '',
-                            title: val.title || val.question || '',
-                            answer: val.answer || '',
-                            category: val.category || 'عام'
-                        });
-                    }
-                });
-                const countEl = document.getElementById('total-fatwas-count');
-                if (countEl) countEl.textContent = cachedFatwasMemory.length;
-                if (typeof renderSearchResults !== 'undefined') {
-                    renderSearchResults(cachedFatwasMemory.slice(-10).reverse());
-                }
-            } catch (e) {
-                console.error("خطأ تحميل الفتاوى:", e);
-            }
-        }
-
-        async function callGeminiAPI_Stream(userQuestion, messageId) {
-            if (!dynamicApiKeys || dynamicApiKeys.length === 0) {
-                return "عذراً، لا توجد مفاتيح API مفعلة حالياً في قاعدة البيانات لإتمام الرد.";
-            }
-
-            let attempts = 0;
-            const maxAttempts = dynamicApiKeys.length;
-
-            while (attempts < maxAttempts) {
-                const currentObj = dynamicApiKeys[currentKeyIndex];
-                const apiKey = currentObj.key;
-                const fbId = currentObj.firebaseId;
-
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:streamGenerateContent?alt=sse&key=${apiKey}`;
-                const fullPrompt = `${SYSTEM_STRICT_INSTRUCTION}\n\nالمسألة الفقهية المستفتى عنها هي: ${userQuestion}`;
-
-                try {
-                    const res = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: fullPrompt }] }],
-                            generationConfig: { temperature: 0.3, maxOutputTokens: 8192 }
-                        })
-                    });
-
-                    if (res.ok) {
-                        const reader = res.body.getReader();
-                        const decoder = new TextDecoder("utf-8");
-                        let accumulatedText = "";
-
-                        while (true) {
-                            const { done, value } = await reader.read();
-                            if (done) break;
-
-                            const chunk = decoder.decode(value, { stream: true });
-                            const lines = chunk.split("\n");
-
-                            for (const line of lines) {
-                                if (line.startsWith("data: ")) {
-                                    const jsonStr = line.replace("data: ", "").trim();
-                                    if (!jsonStr) continue;
-
-                                    try {
-                                        const parsed = JSON.parse(jsonStr);
-                                        const textPart = parsed.candidates?.[0]?.content?.parts?.[0]?.text || "";
-                                        accumulatedText += textPart;
-
-                                        updateStreamingUI(accumulatedText, messageId, false);
-                                    } catch (e) {
-                                    }
-                                }
-                            }
-                        }
-
-                        updateStreamingUI(accumulatedText, messageId, true);
-
-                        const newCount = (currentObj.requestsCount || 0) + 1;
-                        db.ref(`api_keys/${fbId}`).update({
-                            status: 'working',
-                            lastUsed: new Date().toISOString(),
-                            requestsCount: newCount,
-                            lastError: null
-                        });
-                        currentKeyIndex = (currentKeyIndex + 1) % dynamicApiKeys.length;
-                        return accumulatedText;
-                    }
-
-                    const statusErr = res.status;
-                    let errorType = statusErr === 429 ? 'limit' : (statusErr === 401 || statusErr === 403 ? 'unauthorized' : 'invalid');
-                    db.ref(`api_keys/${fbId}`).update({
-                        status: errorType,
-                        lastError: `HTTP Error: ${statusErr}`,
-                        lastUsed: new Date().toISOString()
-                    });
-
-                } catch (err) {
-                    db.ref(`api_keys/${fbId}`).update({
-                        status: 'invalid',
-                        lastError: err.message || 'Network Exception',
-                        lastUsed: new Date().toISOString()
-                    });
-                }
-
-                currentKeyIndex = (currentKeyIndex + 1) % dynamicApiKeys.length;
-                attempts++;
-            }
-
-            return null;
-        }
-
-        async function saveFatwaAsJsonToDatabase(question, answerText) {
-            try {
-                const id = Date.now().toString();
-                await db.ref(`fatwas_json/${id}`).set({
-                    id: id,
-                    question: question,
-                    answer: answerText,
-                    createdAt: new Date().toISOString(),
-                    source: "model_muslim"
-                });
-            } catch (e) {}
-        }
-
-        async function handleAsk() {
-            if (!state.input.trim() || state.loading) return;
-            const userText = state.input;
-            state.input = "";
-            
-            const textarea = document.getElementById('message-input');
-            if (textarea) {
-                textarea.value = "";
-                textarea.style.height = 'auto';
-            }
-            
-            state.loading = true;
-            state.isHeroProminent = false;
-            state.autoScrollEnabled = true;
-
-            const uMsgId = Date.now().toString();
-            state.messages.push({ role: 'user', text: userText, id: uMsgId });
-            renderMessages();
-
-            let finalAnswer = null;
-            if (cachedFatwasMemory.length > 0) {
-                const fuse = new Fuse(cachedFatwasMemory, { keys: ['question'], threshold: 0.15 });
-                const res = fuse.search(userText);
-                if (res.length > 0) finalAnswer = res[0].item.answer;
-            }
-
-            const aiMsgId = (Date.now() + 1).toString();
-            state.messages.push({ role: 'ai', text: '', verified: true, isTyping: false, id: aiMsgId });
-            state.loading = false;
-            renderMessages();
-
-            setTimeout(() => updateStreamingUI("", aiMsgId, false), 0);
-
-if (!finalAnswer) {
-    finalAnswer = await callGeminiAPI_Stream(userText, aiMsgId);
-} else {
-    updateStreamingUI("", aiMsgId, false);
-
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    updateStreamingUI(finalAnswer, aiMsgId, true);
-}
-
-            if (!finalAnswer) {
-                finalAnswer = "عذراً، حدث خطأ في الاتصال أو أن جميع المفاتيح استنفدت الحد المسموح. يرجى مراجعة لوحة تحكم المفاتيح.";
-                updateStreamingUI(finalAnswer, aiMsgId, true);
-            }
-
-            const mObj = state.messages.find(m => m.id === aiMsgId);
-            if (mObj) {
-                mObj.text = finalAnswer;
-                saveMessagesToLocal();
-            }
-            
-            setTimeout(async () => {
-                saveFatwaAsJsonToDatabase(userText, finalAnswer);
-                notifyNewQuestion(userText, aiMsgId);
-                loadAllFatwasForSearch();
-            }, 100);
-        }
-
-        function setupSpeechRecognition() {
-            
-            let audioContext;
-let analyser;
-let microphone;
-let animationFrame;
-            
-            
-            const micBtn = document.getElementById('mic-button');
-            if (!micBtn) return;
-
-            micBtn.addEventListener('click', () => {
-                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                if (!SpeechRecognition) {
-                    showNotification("متصفحك لا يدعم خاصية التعرف على الصوت (Speech Recognition)", "error");
-                    return;
-                }
-
-try {
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'ar-SA';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-
-    recognition.onstart = () => {
-        showNotification("🎙️ جاري الاستماع...");
-        startVoiceVisualizer();
-    };
-
-    recognition.onresult = (event) => {
-        const speechText = event.results[0][0].transcript;
-        const ta = document.getElementById('message-input');
-
-        if (ta) {
-            ta.value = speechText;
-            state.input = speechText;
-            ta.style.height = 'auto';
-            ta.style.height = ta.scrollHeight + 'px';
-        }
-    };
-
-    recognition.onerror = (event) => {
-
-        // إيقاف المؤشر عند حدوث أي خطأ
-        stopVoiceVisualizer();
-
-        let errorMsg = "حدث خطأ أثناء التقاط الصوت";
-
-        if (event.error === 'not-allowed') {
-            errorMsg = "تم رفض إذن الوصول إلى الميكروفون من قبل المتصفح.";
-        } else if (event.error === 'no-speech') {
-            errorMsg = "لم يتم رصد أي صوت، يرجى المحاولة مرة أخرى.";
-        } else if (event.error === 'network') {
-            errorMsg = "خطأ في الشبكة أثناء الاتصال بخدمة الصوت.";
-        }
-
-        showNotification(errorMsg, "error");
-    };
-
-    // عند انتهاء التسجيل (سواء نجح أو انتهى تلقائياً)
-    recognition.onend = () => {
-        stopVoiceVisualizer();
-    };
-
-    recognition.start();
-
-} catch (err) {
-    stopVoiceVisualizer();
-
-    showNotification(
-        "تعذر تشغيل الميكروفون: تأكد من إعطاء الصلاحية للمتصفح.",
-        "error"
-    );
-}            });
-        }
-
-function startVoiceVisualizer() {
-    const box = document.getElementById("voice-visualizer");
-    if (!box) return;
-
-    box.classList.remove("hidden");
-
-    navigator.mediaDevices.getUserMedia({audio:true})
-    .then(stream => {
-
-        audioContext = new AudioContext();
-        analyser = audioContext.createAnalyser();
-
-        microphone = audioContext.createMediaStreamSource(stream);
-        microphone.connect(analyser);
-
-        analyser.fftSize = 64;
-
-        const bars = document.querySelectorAll(".voice-bar");
-        const data = new Uint8Array(analyser.frequencyBinCount);
-
-        function animate() {
-            analyser.getByteFrequencyData(data);
-
-            bars.forEach((bar,i)=>{
-                const value = data[i] || 0;
-                bar.style.height = Math.max(8,value/3)+"px";
-            });
-
-            animationFrame=requestAnimationFrame(animate);
-        }
-
-        animate();
+            const res = await fetch(finalUrl, { method: 'POST', headers, body: formData });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'فشل الرفع');
+            toast(`✅ تم رفع الصور بنجاح`);
+            fetchQuranImages();
+        } catch (e) { toast(`❌ فشل الرفع: ${e.message}`, true); }
+        this.value = '';
     });
-}
 
+    function escapeHtml(str) { return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;'); }
 
-function stopVoiceVisualizer(){
-
-    const box=document.getElementById("voice-visualizer");
-
-    if(box)
-        box.classList.add("hidden");
-
-    if(animationFrame)
-        cancelAnimationFrame(animationFrame);
-
-    if(audioContext)
-        audioContext.close();
-}
-        function setupEventListeners() {
-            const ta = document.getElementById('message-input');
-            if (ta) {
-                ta.addEventListener('input', (e) => {
-                    state.input = e.target.value;
-                    e.target.style.height = 'auto';
-                    e.target.style.height = e.target.scrollHeight + 'px';
-                });
-                ta.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleAsk();
-                    }
-                });
-            }
-            const sendBtn = document.getElementById('send-button');
-            if (sendBtn) sendBtn.addEventListener('click', handleAsk);
-
-            const menuBtn = document.getElementById('menu-button');
-            if (menuBtn) menuBtn.addEventListener('click', () => {
-                state.isMenuOpen = !state.isMenuOpen;
-                const menu = document.getElementById('dropdown-menu');
-                if (menu) {
-                    menu.classList.toggle('menu-hidden', !state.isMenuOpen);
-                    menu.classList.toggle('menu-visible', state.isMenuOpen);
-                }
-            });
-
-            setupScrollHandling();
-            setupSpeechRecognition();
-            loadAllFatwasForSearch();
-        }
-
-        function renderApp() {
-            const root = document.getElementById('root');
-            if (!root) return;
-            root.innerHTML = `
-                <div class="h-screen flex flex-col relative transition-colors duration-500 dark">
-                    <div id="hero-container" class="hero-bg px-4 flex flex-col items-center justify-center">
-                        <i data-lucide="terminal" class="w-[150px] h-[150px] mx-auto mb-6 text-white"></i>
-                        <h1 class="text-4xl md:text-6xl font-black mb-4 text-white">مرحباً بك في <span class="text-white">{ نموذج مسلم }</span></h1>
-                        <p class="text-lg font-bold tracking-[0.2em] uppercase text-white">يتم الإجابة من المصادر السلفية الموثوقة</p>
-                    </div>
-
-                    <div class="fixed top-0 w-full z-50 px-4 md:px-20">
-                        <header class="fixed top-0 left-0 w-full z-50 px-8 py-4 flex justify-between items-center h-24 bg-[#1e1f20]/90 backdrop-blur-2xl border-b border-white/5 rounded-b-[32px]">
-                            <div class="flex-1 flex justify-start">
-                                <div class="relative">
-                                    <button id="menu-button" class="p-3 rounded-2xl">
-                                        <div class="flex flex-col gap-1 w-7">
-                                            <span class="h-1.5 w-full bg-[#FFFFFF] rounded-full block"></span>
-                                            <span class="h-1.5 w-full bg-[#FFFFFF] rounded-full block"></span>
-                                            <span class="h-1.5 w-full bg-[#FFFFFF] rounded-full block"></span>
-                                        </div>
-                                    </button>
-                                    <div id="dropdown-menu" class="absolute right-0 mt-4 w-80 bg-slate-900/98 border border-slate-800 rounded-[24px] shadow-2xl py-4 z-[100] menu-transition menu-hidden">
-                                        <button onclick="window.location.href='database.html'" class="w-full text-right px-6 py-4 hover:bg-white/5 flex items-center justify-between text-slate-200 group transition-all">
-                                            <span class="font-bold"> البحث في قواعد البيانات</span>
-                                            <i data-lucide="search" class="w-5 h-5 text-blue-400"></i>
-                                        </button>
-                                        <div class="h-[1px] bg-slate-800 my-2 mx-6"></div>
-                                        <button id="clear-history-btn" onclick="clearHistory()" class="w-full text-right px-6 py-4 hover:bg-white/5 flex items-center justify-between text-slate-200 group transition-all">
-                                            <span class="font-bold">️ مسح المحادثات</span>
-                                            <i data-lucide="trash-2" class="w-5 h-5 text-red-500"></i>
-                                        </button>
-                                        <div class="h-[1px] bg-slate-800 my-2 mx-6"></div>
-                                        <button onclick="window.openReportModal()" class="w-full text-right px-6 py-4 hover:bg-red-500/10 flex items-center justify-between text-red-400 group transition-all">
-                                            <span class="font-bold">⚠️ الإبلاغ عن مشكلة</span>
-                                            <i data-lucide="alert-triangle" class="w-5 h-5"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex-1 flex justify-center">
-                                <h1 class="header-glow-text text-2xl md:text-5xl tracking-tighter uppercase">مسلم</h1>
-                            </div>
-                            <div class="flex-1 flex justify-end">
-                                <div class="text-white"><i data-lucide="terminal" class="w-10 h-10" style="stroke-width: 3px;"></i></div>
-                            </div>
-                        </header>
-                    </div>
-
-                    <main class="flex-1 overflow-y-auto pt-32 pb-48 custom-scroll px-0 messages-container">
-                        <div id="messages-container" class="w-full"></div>
-                    </main>
-
-                    <footer class="fixed bottom-0 left-0 w-full px-0 pb-8 pt-10 z-50 bg-gradient-to-t from-gray-900 via-gray-800/90 to-transparent">
-                        <div class="w-full max-w-full mx-auto relative px-4">
-                            <div class="relative flex flex-col bg-[#1e1f20] border border-white/5 rounded-[28px] p-2 transition-all">
-                               
-                               
-                       <div id="voice-visualizer" class="hidden flex justify-center items-center gap-1 mb-2 h-10">
-    <div class="voice-bar"></div>
-    <div class="voice-bar"></div>
-    <div class="voice-bar"></div>
-    <div class="voice-bar"></div>
-    <div class="voice-bar"></div>
-    <div class="voice-bar"></div>
-    <div class="voice-bar"></div>
-</div>        
-                               
-                                <textarea id="message-input" rows="1" placeholder="أدخل سؤالك هنا..." class="w-full bg-transparent border-none outline-none text-white placeholder-slate-500 p-4 pb-12 resize-none text-lg min-h-[60px] max-h-[200px] custom-scroll"></textarea>
-                                <div class="absolute bottom-3 left-4 right-4 flex justify-between items-center">
-                                    <button id="mic-button" class="p-2 rounded-full text-slate-400 hover:text-blue-400 transition-all"><i data-lucide="mic" class="w-5 h-5"></i></button>
-                                    <button id="send-button" class="p-2.5 rounded-full transition-all bg-white text-black scale-105 hover:bg-blue-400"><i data-lucide="arrow-up" class="w-5 h-5 stroke-[3px]"></i></button>
-                                </div>
-                            </div>
-                            <p class="text-[10px] text-center text-slate-600 mt-4 tracking-tight">قد يعرض نموذج مسلم أخطاء يرجى الانتظار حتى المراجعة العلمية</p>
-                        </div>
-                    </footer>
-                </div>
-            `;
-            if (window.lucide) lucide.createIcons();
-            loadMessagesFromLocal();
-            setupEventListeners();
-            renderHero();
-        }
-
-        renderApp();
-    </script>
-
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('service-worker.js')
-                    .then(reg => console.log('ServiceWorker registered: ', reg.scope))
-                    .catch(err => console.log('ServiceWorker registration failed: ', err));
-            });
-        }
-    </script>
+    // Start the app by loading sessions
+    loadSessions();
+</script>
 </body>
 </html>
-
