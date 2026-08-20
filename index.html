@@ -12,6 +12,8 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
         /* ===== RESET & ROOT ===== */
@@ -1077,23 +1079,55 @@
         try { await apiFetch(`/api/quran-images/${id}`, { method: 'DELETE' }); fetchQuranImages(); toast('🗑️ تم الحذف بنجاح'); } catch (e) { toast('❌ فشل الحذف', true); }
     }
 
-    document.getElementById('quranFileInput').addEventListener('change', async function(e) {
-        const files = this.files; if (!files.length) return;
-        const formData = new FormData(); for (const f of files) formData.append('image', f);
-        toast(`⏳ جاري رفع ${files.length} صورة...`);
-        try {
-            const finalUrl = currentBotId ? `${baseURL}/api/quran-images/upload?bot=${currentBotId}` : `${baseURL}/api/quran-images/upload`;
-            const headers = { 'Authorization': API_KEY };
-            if (currentSessionPassword) headers['Session-Password'] = currentSessionPassword;
+      // تهيئة التخزين السحابي
+const storage = firebase.storage();
 
-            const res = await fetch(finalUrl, { method: 'POST', headers, body: formData });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || 'فشل الرفع');
-            toast(`✅ تم رفع الصور بنجاح`);
-            fetchQuranImages();
-        } catch (e) { toast(`❌ فشل الرفع: ${e.message}`, true); }
+document.getElementById('quranFileInput').addEventListener('change', async function(e) {
+    const files = this.files; 
+    if (!files.length) return;
+    
+    toast(`⏳ جاري رفع ${files.length} صورة إلى السحابة الآمنة...`);
+    
+    try {
+        const imagesListRef = fb.ref(`bots/${currentBotId}/state/quranImages`);
+        const snapshot = await imagesListRef.once('value');
+        let currentImages = snapshot.val() || [];
+        
+        for (const file of files) {
+            // 1. إنشاء مسار فريد للصورة في Firebase Storage
+            const fileRef = storage.ref(`bots/${currentBotId}/quran/${Date.now()}_${file.name}`);
+            
+            // 2. رفع الصورة مباشرة إلى جوجل
+            await fileRef.put(file);
+            
+            // 3. الحصول على الرابط العام السريع
+            const downloadURL = await fileRef.getDownloadURL();
+            
+            // 4. دمج الرابط في قاعدة البيانات اللحظية
+            currentImages.push({
+                id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
+                filename: file.name,
+                url: downloadURL, // هذا هو السر!
+                order: currentImages.length + 1,
+                enabled: true,
+                uploadedAt: new Date().toISOString()
+            });
+        }
+        
+        // 5. حفظ المصفوفة الجديدة في Realtime Database
+        await sendFirebaseCommand(currentBotId, 'saveQuranImages', currentImages);
+        // التحديث المباشر للحالة
+        await imagesListRef.set(currentImages);
+        
+        toast(`✅ تم رفع الصور عالمياً بنجاح!`);
         this.value = '';
-    });
+        
+    } catch (error) {
+        console.error("🚨 فشل في معمارية الرفع:", error);
+        toast(`❌ خطأ في التخزين السحابي: ${error.message}`, true);
+    }
+});
+
 
     function escapeHtml(str) { return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;'); }
 
